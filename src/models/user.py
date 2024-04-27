@@ -10,7 +10,7 @@ class User(Base):
     __abstract__ = True
 
     email: Mapped[str] = mapped_column(unique=True)
-    password: Mapped[str]
+    password: Mapped[str] = mapped_column()
 
     is_active: Mapped[bool] = mapped_column(default=True)
 

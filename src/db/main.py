@@ -4,8 +4,11 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     async_sessionmaker,
-    create_async_engine
+    create_async_engine,
+    AsyncSession,
 )
+
+from core.settings import settings
 
 
 @dataclass
@@ -14,29 +17,38 @@ class EnginePool:
     maker: async_sessionmaker
 
 
-session_pool: dict[str, EnginePool] = {}
+session_pools: dict[str, EnginePool] = {}
 
 
 class SessionException(Exception):
     pass
 
 
+async def set_session_pool() -> None:
+    await get_async_pool(settings.db.postgres_url)
+
+
+async def get_session() -> AsyncSession:
+    current_pool = await get_async_pool(settings.db.postgres_url)
+    return current_pool.maker()
+
+
 async def get_async_pool(db_url: str) -> EnginePool:
-    current = session_pool.get(db_url)
+    current = session_pools.get(db_url)
     if current is None:
         engine = create_async_engine(url=db_url)
         await _check_connection(engine)
         maker = await _create_async_sessionmaker(engine)
         current = EnginePool(engine=engine, maker=maker)
-        session_pool[db_url] = current
+        session_pools[db_url] = current
 
     return current
 
 
 async def _check_connection(engine: AsyncEngine) -> None:
     try:
-        with engine.connect() as conn:
-            conn.execute(select(1))
+        async with engine.connect() as conn:
+            await conn.execute(select(1))
     except Exception as e:
         raise SessionException(e)
 
@@ -45,3 +57,8 @@ async def _create_async_sessionmaker(
     engine: AsyncEngine,
 ) -> async_sessionmaker:
     return async_sessionmaker(bind=engine, expire_on_commit=False, future=True)
+
+
+async def close_dbs() -> None:
+    for ses_pool in session_pools.values():
+        await ses_pool.engine.dispose()
