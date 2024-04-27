@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     async_sessionmaker,
-    create_async_engine,
+    create_async_engine
 )
 
 
