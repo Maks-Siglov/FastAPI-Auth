@@ -6,7 +6,7 @@ import uvicorn
 
 from auth.views import router as auth_router
 from core.settings import settings
-from db.main import close_dbs, session_pools, set_session_pool
+from db.main import close_dbs, set_session_pool
 
 
 @asynccontextmanager

@@ -9,7 +9,7 @@ async def create_user(
     session: AsyncSession, user_data: UserCreationSchema
 ) -> UserSchema:
     db_user = User(**user_data.dict())
-    await session.add(db_user)
+    session.add(db_user)
     await session.commit()
     await session.refresh(db_user)
     return UserSchema(**db_user.__dict__)

@@ -1,9 +1,15 @@
-from fastapi import APIRouter, Body, Depends
+from fastapi import (
+    APIRouter,
+    Body,
+    Depends,
+)
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.crud import create_user
 from auth.schemas import UserCreationSchema, UserSchema
 from auth.utils import hash_password
+
 from db.main import get_session
 
 router = APIRouter(prefix="/auth", tags=["auth"])
