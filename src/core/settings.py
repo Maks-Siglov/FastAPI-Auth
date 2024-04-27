@@ -24,6 +24,10 @@ class DbSettings(BaseModel):
     postgres_url: str = (
         f"{db_engine}://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
     )
+    sync_postgres_url: str = (
+        f"postgresql+psycopg2://{db_user}:{db_password}@"
+        f"{db_host}:{db_port}/{db_name}"
+    )
     echo: bool = os.getenv("DB_ECHO", True)
 
 
