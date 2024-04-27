@@ -1,6 +1,7 @@
 asyncpg==0.29.0
 alembic==1.13.0
 fastapi==0.110.1
+passlib==1.7.4
 pathlib==1.0
 pydantic[email]==2.6.4
 pydantic-settings==2.2.1

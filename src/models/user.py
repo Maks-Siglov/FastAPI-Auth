@@ -18,3 +18,6 @@ class User(Base):
     updated_at: Mapped[datetime] = mapped_column(
         default=func.now(), onupdate=func.now()
     )
+
+    def __str__(self) -> str:
+        return self.email
