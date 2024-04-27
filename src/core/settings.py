@@ -30,9 +30,23 @@ class DbSettings(BaseModel):
     echo: bool = os.getenv("DB_ECHO", True)
 
 
+class JWTSettings(BaseModel):
+    ACCESS_TOKEN_TYPE: str = "Access"
+    REFRESH_TOKEN_TYPE: str = "Refresh"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
+    REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 30
+
+
+class SecuritySettings(BaseModel):
+    ALGORITHM: str = os.getenv("SECURITY_ALGORITHM")
+    SECRET_KEY: str = os.getenv("SECRET_KEY")
+
+
 class Settings(BaseSettings):
     app: AppSettings = AppSettings()
     db: DbSettings = DbSettings()
+    jwt: JWTSettings = JWTSettings()
+    security: SecuritySettings = SecuritySettings()
 
 
 settings = Settings()

@@ -5,6 +5,11 @@ from pydantic import (
 )
 
 
+class UserLoginSchema(BaseModel):
+    email: EmailStr = Field(alias="username")
+    password: str
+
+
 class BaseUserSchema(BaseModel):
     email: EmailStr
 

@@ -6,6 +6,7 @@ pathlib==1.0
 pydantic[email]==2.6.4
 pydantic-settings==2.2.1
 pydantic_core==2.16.3
+pyjwt==2.8.0
 SQLAlchemy==2.0.29
 starlette==0.37.2
 python-dotenv==0.21.0
