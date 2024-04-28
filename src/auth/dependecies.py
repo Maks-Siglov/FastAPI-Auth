@@ -1,11 +1,13 @@
 from fastapi import Depends
 from fastapi.security import HTTPBearer, OAuth2PasswordBearer
-from jwt import InvalidTokenError
+
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from jwt import InvalidTokenError
 
 from auth.crud import get_user_by_email
 from auth.exceptions import invalid_token_error
-from auth.utils import decode_jwt
+from auth.utils.my_jwt import decode_jwt
 from db.main import get_session
 from models import User
 

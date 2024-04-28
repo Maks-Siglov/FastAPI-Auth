@@ -1,27 +1,27 @@
-from fastapi import APIRouter, Body, Depends
+from fastapi import (
+    APIRouter,
+    Body,
+    Depends
+)
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.crud import create_user, get_user_by_email
-from auth.dependecies import http_bearer, get_current_user
+from auth.dependecies import get_current_user, http_bearer
 from auth.exceptions import (
     credential_exceptions,
     not_active_user_exceptions,
-    repeat_email_exceptions,
+    repeat_email_exceptions
 )
 from auth.schemas.token import TokenSchema
 from auth.schemas.user import (
+    ChangePasswordSchema,
     UserCreationSchema,
     UserLoginSchema,
-    UserSchema,
-    ChangePasswordSchema,
+    UserSchema
 )
-from auth.utils import (
-    create_access_token,
-    create_refresh_token,
-    hash_password,
-    verify_password,
-)
+from auth.utils.my_jwt import create_access_token, create_refresh_token
+from auth.utils.password import hash_password, verify_password
 from db.main import get_session
 from models import User
 

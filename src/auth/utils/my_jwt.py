@@ -1,20 +1,9 @@
 from datetime import datetime, timedelta
 
 import jwt
-from passlib.context import CryptContext
 
 from core.settings import settings
 from models import User
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-
-def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
-
-
-def verify_password(password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(password, hashed_password)
 
 
 def create_jwt(token_type: str, token_data: dict, expire_time: int) -> str:
