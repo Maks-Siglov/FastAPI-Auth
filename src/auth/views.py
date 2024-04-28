@@ -7,7 +7,8 @@ from fastapi import (
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.crud import create_user, get_user_by_email
-from auth.exceptions import credential_exceptions, not_active_user_exceptions
+from auth.exceptions import credential_exceptions, not_active_user_exceptions, \
+    repeat_email_exceptions
 from auth.schemas.token import TokenSchema
 from auth.schemas.user import (
     UserCreationSchema,
@@ -30,6 +31,9 @@ async def signup(
     payload: UserCreationSchema = Body(),
     session: AsyncSession = Depends(get_session),
 ) -> UserSchema:
+    if get_user_by_email(session=session, email=payload.email) is not None:
+        raise repeat_email_exceptions
+
     payload.password = hash_password(payload.password)
     return await create_user(user_data=payload, session=session)
 
