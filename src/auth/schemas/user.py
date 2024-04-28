@@ -4,6 +4,7 @@ from pydantic import (
     Field,
     field_validator,
 )
+from pydantic_core.core_schema import ValidationInfo
 
 
 class UserLoginSchema(BaseModel):
@@ -58,4 +59,26 @@ class UserCreationSchema(BaseUserSchema):
                 "Password cannot contain this symbols: '@\"'<>\\'"
             )
 
+        return v
+
+
+class ChangePasswordSchema(BaseModel):
+    old_password: str
+    new_password: str
+    new_password_confirm: str
+
+    @field_validator("new_password")
+    def password_validator(cls, v):
+        UserCreationSchema.password_validator(v)
+        return v
+
+    @field_validator("new_password_confirm")
+    def validate_new_password_confirm(
+        cls, v, validation_info: ValidationInfo, **kwargs
+    ):
+        if (
+            "new_password" in validation_info.data
+            and v != validation_info.data["new_password"]
+        ):
+            raise ValueError("Passwords do not match")
         return v

@@ -18,3 +18,9 @@ repeat_email_exceptions = HTTPException(
     status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
     detail="Email already exists",
 )
+
+
+invalid_token_error = HTTPException(
+    status_code=status.HTTP_401_UNAUTHORIZED,
+    detail="Invalid token",
+)

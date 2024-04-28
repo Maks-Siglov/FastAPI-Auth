@@ -3,13 +3,19 @@ from fastapi import APIRouter, Body, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.crud import create_user, get_user_by_email
+from auth.dependecies import http_bearer, get_current_user
 from auth.exceptions import (
     credential_exceptions,
     not_active_user_exceptions,
     repeat_email_exceptions,
 )
 from auth.schemas.token import TokenSchema
-from auth.schemas.user import UserCreationSchema, UserLoginSchema, UserSchema
+from auth.schemas.user import (
+    UserCreationSchema,
+    UserLoginSchema,
+    UserSchema,
+    ChangePasswordSchema,
+)
 from auth.utils import (
     create_access_token,
     create_refresh_token,
@@ -17,8 +23,13 @@ from auth.utils import (
     verify_password,
 )
 from db.main import get_session
+from models import User
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(
+    prefix="/auth",
+    tags=["auth"],
+    dependencies=[Depends(http_bearer)],
+)
 
 
 @router.post("/signup", response_model=UserSchema)
@@ -52,3 +63,19 @@ async def login(
     refresh_token = create_refresh_token(user)
 
     return TokenSchema(access_token=access_token, refresh_token=refresh_token)
+
+
+@router.post("/change-password", response_model=UserSchema)
+async def change_password(
+    payload: ChangePasswordSchema,
+    user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+) -> UserSchema:
+    if not verify_password(payload.old_password, user.password):
+        raise credential_exceptions
+    new_password = hash_password(payload.new_password)
+
+    user.password = new_password
+    await session.commit()
+    await session.refresh(user)
+    return UserSchema(**user.__dict__)

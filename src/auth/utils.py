@@ -53,9 +53,9 @@ def create_refresh_token(user: User) -> str:
     )
 
 
-def decode_jwt(token: str | bytes):
+def decode_jwt(token: str):
     return jwt.decode(
-        token=token,
-        algorithm=settings.security.ALGORITHM,
+        jwt=token,
+        algorithms=[settings.security.ALGORITHM],
         key=settings.security.SECRET_KEY,
     )
