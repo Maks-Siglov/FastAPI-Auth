@@ -1,25 +1,20 @@
-from fastapi import (
-    APIRouter,
-    Body,
-    Depends
-)
+from fastapi import APIRouter, Body, Depends
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.crud import create_user, get_user_by_email
-from auth.exceptions import credential_exceptions, not_active_user_exceptions, \
-    repeat_email_exceptions
-from auth.schemas.token import TokenSchema
-from auth.schemas.user import (
-    UserCreationSchema,
-    UserLoginSchema,
-    UserSchema
+from auth.exceptions import (
+    credential_exceptions,
+    not_active_user_exceptions,
+    repeat_email_exceptions,
 )
+from auth.schemas.token import TokenSchema
+from auth.schemas.user import UserCreationSchema, UserLoginSchema, UserSchema
 from auth.utils import (
     create_access_token,
     create_refresh_token,
     hash_password,
-    verify_password
+    verify_password,
 )
 from db.main import get_session
 
@@ -31,7 +26,10 @@ async def signup(
     payload: UserCreationSchema = Body(),
     session: AsyncSession = Depends(get_session),
 ) -> UserSchema:
-    if get_user_by_email(session=session, email=payload.email) is not None:
+    if (
+        await get_user_by_email(session=session, email=payload.email)
+        is not None
+    ):
         raise repeat_email_exceptions
 
     payload.password = hash_password(payload.password)

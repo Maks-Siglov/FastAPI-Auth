@@ -24,7 +24,7 @@ class UserSchema(BaseUserSchema):
 
 
 class UserCreationSchema(BaseUserSchema):
-    password: str | bytes = Field(alias="password")
+    password: str = Field(alias="password")
 
     @field_validator("password")
     def password_validator(cls, v):
