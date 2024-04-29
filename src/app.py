@@ -1,10 +1,10 @@
 import asyncio
-import uvloop
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
 import uvicorn
+import uvloop
 
 from auth.views import router as auth_router
 from core.settings import settings

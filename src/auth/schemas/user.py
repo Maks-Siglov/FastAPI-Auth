@@ -1,4 +1,9 @@
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import (
+    BaseModel,
+    EmailStr,
+    Field,
+    field_validator
+)
 from pydantic_core.core_schema import ValidationInfo
 
 from auth.utils.password import validate_password
@@ -15,7 +20,9 @@ class BaseUserSchema(BaseModel):
 
 class UserSchema(BaseUserSchema):
     id: int
-    is_active: bool = Field(default=True, description="Whether the user is active.")
+    is_active: bool = Field(
+        default=True, description="Whether the user is active."
+    )
 
     class Config:
         from_attributes = True

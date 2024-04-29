@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from typing import Any
 
 import jwt
 
@@ -20,11 +21,21 @@ def create_jwt(token_type: str, token_data: dict, expire_time: int) -> str:
     )
 
 
+def revoke_jwt(payload: dict[str, Any]) -> str:
+    payload["token_revoked"] = True
+    return jwt.encode(
+        payload=payload,
+        algorithm=settings.security.ALGORITHM,
+        key=settings.security.SECRET_KEY,
+    )
+
+
 def create_access_token(user: User) -> str:
     jwt_payload = {
         "sub": user.email,
         "id": user.id,
         "is_active": user.is_active,
+        "token_revoked": False,
     }
     return create_jwt(
         settings.jwt.ACCESS_TOKEN_TYPE,
@@ -34,7 +45,7 @@ def create_access_token(user: User) -> str:
 
 
 def create_refresh_token(user: User) -> str:
-    jwt_payload = {"sub": user.email}
+    jwt_payload = {"sub": user.email, "token_revoked": False}
     return create_jwt(
         settings.jwt.REFRESH_TOKEN_TYPE,
         jwt_payload,

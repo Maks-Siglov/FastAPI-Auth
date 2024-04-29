@@ -1,22 +1,36 @@
-from fastapi import APIRouter, Body, Depends
+from typing import Any
+
+from fastapi import (
+    APIRouter,
+    Body,
+    Depends
+)
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.crud import create_user, get_user_by_email
-from auth.dependecies import get_current_user, http_bearer
+from auth.dependecies import (
+    get_current_user,
+    get_token_payload,
+    http_bearer
+)
 from auth.exceptions import (
     credential_exceptions,
     not_active_user_exception,
-    repeat_email_exception,
+    repeat_email_exception
 )
-from auth.schemas.token import TokenSchema
+from auth.schemas.token import AccessTokenSchema, TokenSchema
 from auth.schemas.user import (
     ChangePasswordSchema,
     UserCreationSchema,
     UserLoginSchema,
-    UserSchema,
+    UserSchema
 )
-from auth.utils.my_jwt import create_access_token, create_refresh_token
+from auth.utils.my_jwt import (
+    create_access_token,
+    create_refresh_token,
+    revoke_jwt
+)
 from auth.utils.password import hash_password, verify_password
 from db.main import get_session
 from models import User
@@ -75,3 +89,11 @@ async def change_password(
     await session.commit()
     await session.refresh(user)
     return UserSchema(**user.__dict__)
+
+
+@router.post("/logout", response_model=AccessTokenSchema)
+async def logout(
+    payload: dict[str, Any] = Depends(get_token_payload),
+) -> AccessTokenSchema:
+    revoked_token = revoke_jwt(payload)
+    return AccessTokenSchema(access_token=revoked_token)
