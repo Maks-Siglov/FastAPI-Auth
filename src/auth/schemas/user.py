@@ -1,33 +1,34 @@
-from pydantic import (
-    BaseModel,
-    EmailStr,
-    Field,
-    field_validator
-)
+from pydantic import BaseModel, EmailStr, Field, field_validator
 from pydantic_core.core_schema import ValidationInfo
 
 from auth.utils.password import validate_password
 
 
 class UserLoginSchema(BaseModel):
-    email: EmailStr = Field(alias="username")
+    email: EmailStr = Field(alias="username(email)")
     password: str
 
 
 class BaseUserSchema(BaseModel):
-    email: EmailStr
+    email: EmailStr = Field(description="Email address of the user.")
 
 
 class UserSchema(BaseUserSchema):
     id: int
-    is_active: bool = Field(default=True)
+    is_active: bool = Field(default=True, description="Whether the user is active.")
 
     class Config:
         from_attributes = True
 
 
 class UserCreationSchema(BaseUserSchema):
-    password: str = Field(alias="password")
+    password: str = Field(
+        description="Password for the user account (8-24 characters, "
+        "containing at least one digit, uppercase letter, lowercase letter, "
+        "and special character).",
+        min_length=8,
+        max_length=24,
+    )
 
     @field_validator("password")
     def password_validator(cls, password_field: str) -> str:
@@ -35,9 +36,17 @@ class UserCreationSchema(BaseUserSchema):
 
 
 class ChangePasswordSchema(BaseModel):
-    old_password: str
-    new_password: str
-    new_password_confirm: str
+    old_password: str = Field(
+        min_length=8, max_length=24, description="Old user password."
+    )
+    new_password: str = Field(
+        min_length=8, max_length=24, description="New user password."
+    )
+    new_password_confirm: str = Field(
+        min_length=8,
+        max_length=24,
+        description="New user password confirmation.",
+    )
 
     @field_validator("new_password")
     def password_validator(cls, password_field: str) -> str:

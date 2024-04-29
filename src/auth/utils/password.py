@@ -12,8 +12,7 @@ def verify_password(password: str, hashed_password: str) -> bool:
 
 
 def validate_password(password: str) -> str:
-    if len(password) < 8 or len(password) > 24:
-        raise ValueError("Password length must be between 8 and 24 characters")
+
     if not any(char.isdigit() for char in password):
         raise ValueError("Password must contain at least one digit")
 

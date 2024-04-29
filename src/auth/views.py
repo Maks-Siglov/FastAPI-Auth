@@ -1,8 +1,4 @@
-from fastapi import (
-    APIRouter,
-    Body,
-    Depends
-)
+from fastapi import APIRouter, Body, Depends
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -18,7 +14,7 @@ from auth.schemas.user import (
     ChangePasswordSchema,
     UserCreationSchema,
     UserLoginSchema,
-    UserSchema
+    UserSchema,
 )
 from auth.utils.my_jwt import create_access_token, create_refresh_token
 from auth.utils.password import hash_password, verify_password

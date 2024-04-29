@@ -21,12 +21,12 @@ repeat_email_exception = HTTPException(
 
 
 invalid_token_exception = HTTPException(
-    status_code=status.HTTP_401_UNAUTHORIZED,
-    detail="Invalid token",
+    status_code=status.HTTP_403_FORBIDDEN,
+    detail="Invalid token credentials",
 )
 
 
 unable_decode_jwt_exception = HTTPException(
     status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-    detail="Unable to decode JWT"
+    detail="Unable to decode JWT",
 )

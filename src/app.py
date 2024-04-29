@@ -17,6 +17,7 @@ async def lifespan(my_app: FastAPI):
     yield
     await close_dbs()
 
+
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 app = FastAPI(lifespan=lifespan)
