@@ -10,8 +10,8 @@ from auth.crud import create_user, get_user_by_email
 from auth.dependecies import get_current_user, http_bearer
 from auth.exceptions import (
     credential_exceptions,
-    not_active_user_exceptions,
-    repeat_email_exceptions
+    not_active_user_exception,
+    repeat_email_exception,
 )
 from auth.schemas.token import TokenSchema
 from auth.schemas.user import (
@@ -41,7 +41,7 @@ async def signup(
         await get_user_by_email(session=session, email=payload.email)
         is not None
     ):
-        raise repeat_email_exceptions
+        raise repeat_email_exception
 
     payload.password = hash_password(payload.password)
     return await create_user(user_data=payload, session=session)
@@ -57,7 +57,7 @@ async def login(
         raise credential_exceptions
 
     if not user.is_active:
-        raise not_active_user_exceptions
+        raise not_active_user_exception
 
     access_token = create_access_token(user)
     refresh_token = create_refresh_token(user)

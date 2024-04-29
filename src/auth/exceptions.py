@@ -8,19 +8,25 @@ credential_exceptions = HTTPException(
 )
 
 
-not_active_user_exceptions = HTTPException(
+not_active_user_exception = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
     detail="User is not active",
 )
 
 
-repeat_email_exceptions = HTTPException(
+repeat_email_exception = HTTPException(
     status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
     detail="Email already exists",
 )
 
 
-invalid_token_error = HTTPException(
+invalid_token_exception = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
     detail="Invalid token",
+)
+
+
+unable_decode_jwt_exception = HTTPException(
+    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+    detail="Unable to decode JWT"
 )

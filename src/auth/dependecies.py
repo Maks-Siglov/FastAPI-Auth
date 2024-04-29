@@ -6,7 +6,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from jwt import InvalidTokenError
 
 from auth.crud import get_user_by_email
-from auth.exceptions import invalid_token_error
+from auth.exceptions import (
+    invalid_token_exception,
+    unable_decode_jwt_exception,
+)
 from auth.utils.my_jwt import decode_jwt
 from db.main import get_session
 from models import User
@@ -19,7 +22,7 @@ def get_token_payload(token: str = Depends(oauth2_scheme)) -> dict:
     try:
         payload = decode_jwt(token)
     except InvalidTokenError as e:
-        raise invalid_token_error
+        raise unable_decode_jwt_exception
     return payload
 
 
@@ -29,8 +32,8 @@ async def get_current_user(
 ) -> User:
     if (email := payload.get("sub")) is None:
 
-        raise invalid_token_error
+        raise invalid_token_exception
     if (user := await get_user_by_email(session=session, email=email)) is None:
-        raise invalid_token_error
+        raise invalid_token_exception
 
     return user
