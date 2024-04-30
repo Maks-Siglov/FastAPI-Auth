@@ -9,13 +9,12 @@ from pydantic_core.core_schema import ValidationInfo
 from auth.utils.password import validate_password
 
 
-class UserLoginSchema(BaseModel):
-    email: EmailStr = Field(alias="username(email)")
-    password: str
-
-
 class BaseUserSchema(BaseModel):
     email: EmailStr = Field(description="Email address of the user.")
+
+
+class UserLoginSchema(BaseUserSchema):
+    password: str
 
 
 class UserSchema(BaseUserSchema):
@@ -23,9 +22,6 @@ class UserSchema(BaseUserSchema):
     is_active: bool = Field(
         default=True, description="Whether the user is active."
     )
-
-    class Config:
-        from_attributes = True
 
 
 class UserCreationSchema(BaseUserSchema):
