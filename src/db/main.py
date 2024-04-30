@@ -24,12 +24,12 @@ class SessionException(Exception):
     pass
 
 
-async def set_session_pool() -> None:
-    await get_async_pool(settings.db.postgres_url)
+async def set_session_pool(db_url: str = settings.db.postgres_url) -> None:
+    await get_async_pool(db_url)
 
 
-async def get_session() -> AsyncSession:
-    current_pool = await get_async_pool(settings.db.postgres_url)
+async def get_session(db_url: str = settings.db.postgres_url) -> AsyncSession:
+    current_pool = await get_async_pool(db_url)
     return current_pool.maker()
 
 
