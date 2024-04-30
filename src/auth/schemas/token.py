@@ -9,4 +9,7 @@ class TokenSchema(BaseModel):
 
 class AccessTokenSchema(BaseModel):
     access_token: str
+
+
+class RevokedAccessTokenSchema(AccessTokenSchema):
     revoked: bool = True

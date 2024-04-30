@@ -32,6 +32,11 @@ invalid_token_credential_exception = HTTPException(
 )
 
 
+invalid_token_type_exception = HTTPException(
+    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+    detail="Invalid token type",
+)
+
 revoked_token_error = HTTPException(
     status_code=status.HTTP_403_FORBIDDEN,
     detail="Token has been revoked",

@@ -12,9 +12,11 @@ from auth.exceptions import (
     invalid_token_credential_exception,
     invalid_token_exception,
     revoked_token_error,
-    unable_decode_jwt_exception
+    unable_decode_jwt_exception,
+    invalid_token_type_exception,
 )
-from auth.utils.my_jwt import decode_jwt
+from auth.utils.my_jwt import decode_jwt, validate_token_type
+from core.settings import settings
 from db.main import get_session
 from models import User
 
@@ -31,7 +33,7 @@ def get_token_payload(token: str = Depends(oauth2_scheme)) -> dict[str, Any]:
 
 
 async def get_current_user(
-    payload: dict = Depends(get_token_payload),
+    payload: dict[str, Any] = Depends(get_token_payload),
     session: AsyncSession = Depends(get_session),
 ) -> User:
     if (email := payload.get("sub")) is None:
@@ -44,3 +46,12 @@ async def get_current_user(
         raise invalid_token_credential_exception
 
     return user
+
+
+async def get_user_from_refresh_token(
+    payload: dict[str, Any] = Depends(get_token_payload),
+    session: AsyncSession = Depends(get_session),
+) -> User:
+    if not validate_token_type(payload, settings.jwt.REFRESH_TOKEN_TYPE):
+        raise invalid_token_type_exception
+    return await get_user_by_email(session, email=payload.get("sub"))
