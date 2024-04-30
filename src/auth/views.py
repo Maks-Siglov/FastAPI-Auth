@@ -1,6 +1,10 @@
 from typing import Any
 
-from fastapi import APIRouter, Body, Depends
+from fastapi import (
+    APIRouter,
+    Body,
+    Depends
+)
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -8,26 +12,29 @@ from auth.crud import create_user, get_user_by_email
 from auth.dependecies import (
     get_current_user,
     get_token_payload,
-    http_bearer,
     get_user_from_refresh_token,
+    http_bearer
 )
 from auth.exceptions import (
     credential_exceptions,
     not_active_user_exception,
-    repeat_email_exception,
+    repeat_email_exception
 )
-from auth.schemas.token import RevokedAccessTokenSchema, TokenSchema, \
-    AccessTokenSchema
+from auth.schemas.token import (
+    AccessTokenSchema,
+    RevokedAccessTokenSchema,
+    TokenSchema
+)
 from auth.schemas.user import (
     ChangePasswordSchema,
     UserCreationSchema,
     UserLoginSchema,
-    UserSchema,
+    UserSchema
 )
 from auth.utils.my_jwt import (
     create_access_token,
     create_refresh_token,
-    revoke_jwt,
+    revoke_jwt
 )
 from auth.utils.password import hash_password, verify_password
 from db.main import get_session
@@ -55,7 +62,7 @@ async def signup(
     return await create_user(user_data=payload, session=session)
 
 
-@router.post("/login", response_model=TokenSchema)
+@router.post("/login/", response_model=TokenSchema)
 async def login(
     payload: UserLoginSchema = Body(),
     session: AsyncSession = Depends(get_session),
@@ -73,7 +80,7 @@ async def login(
     return TokenSchema(access_token=access_token, refresh_token=refresh_token)
 
 
-@router.post("/change-password", response_model=UserSchema)
+@router.post("/change-password/", response_model=UserSchema)
 async def change_password(
     payload: ChangePasswordSchema,
     user: User = Depends(get_current_user),
@@ -89,7 +96,7 @@ async def change_password(
     return UserSchema(**user.__dict__)
 
 
-@router.post("/logout", response_model=RevokedAccessTokenSchema)
+@router.post("/logout/", response_model=RevokedAccessTokenSchema)
 async def logout(
     payload: dict[str, Any] = Depends(get_token_payload),
 ) -> RevokedAccessTokenSchema:
@@ -97,7 +104,7 @@ async def logout(
     return RevokedAccessTokenSchema(access_token=revoked_token)
 
 
-@router.post("/refresh", response_model=AccessTokenSchema)
+@router.post("/refresh/", response_model=AccessTokenSchema)
 async def refresh_access_token(
     user: User = Depends(get_user_from_refresh_token),
 ) -> AccessTokenSchema:

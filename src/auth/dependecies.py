@@ -11,9 +11,9 @@ from auth.crud import get_user_by_email
 from auth.exceptions import (
     invalid_token_credential_exception,
     invalid_token_exception,
-    revoked_token_error,
-    unable_decode_jwt_exception,
     invalid_token_type_exception,
+    revoked_token_error,
+    unable_decode_jwt_exception
 )
 from auth.utils.my_jwt import decode_jwt, validate_token_type
 from core.settings import settings
