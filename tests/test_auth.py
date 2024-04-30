@@ -13,6 +13,15 @@ def test_read_main(test_client: TestClient):
     assert response.json()["detail"] == "Invalid user credentials"
 
 
+def test_signup(test_client: TestClient):
+    signup_post_data = {
+        "email": "new_user@gmail.com",
+        "password": "Test_password22",
+    }
+    response = test_client.post("/auth/signup/", json=signup_post_data)
+    assert response.status_code == 200
+
+
 INVALID_SIGNUP_DATA = [
     ({"email": "string", "password": "Test_password22"}, 422),
     ({"email": "test_email2@gmail.com", "password": "no_uppercase2"}, 422),

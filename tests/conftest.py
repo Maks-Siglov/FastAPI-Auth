@@ -4,22 +4,29 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 import pytest
 
+from db.utils import create_db, create_tables, drop_db, drop_tables
 from src.core.settings import settings
 from src.app import app
-from src.db.main import close_dbs, get_session, set_session_pool, session_pools
+from src.db.main import close_dbs, get_session, set_session_pool
 from src.models import User
+
+
+@pytest.hookimpl(tryfirst=True)
+async def pytest_sessionstart(session):
+    await create_db(settings.db.test_postgres_url, settings.db.test_db_name)
+    await create_tables(settings.db.test_postgres_url)
+    await set_session_pool(settings.db.test_postgres_url)
+
+    yield
+
+    await close_dbs()
+    await drop_tables(settings.db.test_postgres_url)
+    await drop_db(settings.db.test_postgres_url, settings.db.test_db_name)
 
 
 @pytest.fixture(scope="session")
 def test_client():
     return TestClient(app)
-
-
-@pytest.fixture(scope="session")
-async def db_connection():
-    await set_session_pool(settings.db.test_postgres_url)
-    yield
-    await close_dbs()
 
 
 @pytest.fixture
