@@ -1,10 +1,6 @@
 from typing import Any
 
-from fastapi import (
-    APIRouter,
-    Body,
-    Depends
-)
+from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
 from sqlalchemy.ext.asyncio import AsyncSession

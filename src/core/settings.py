@@ -8,20 +8,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 class AppSettings(BaseModel):
-    host: str = os.getenv("APP_HOST", "0.0.0.0")
-    port: int = int(os.getenv("APP_PORT", 8000))
-    reload: bool = os.getenv("APP_RELOAD", True)
+    host: str = os.environ["APP_HOST"]
+    port: int = int(os.environ["APP_PORT"])
+    reload: bool = bool(os.environ["APP_RELOAD"])
 
 
 class DbSettings(BaseModel):
-    db_name: str = os.getenv("DB_NAME")
-    db_engine: str = os.getenv("DB_ENGINE")
-    db_user: str = os.getenv("DB_USER")
-    db_password: str = os.getenv("DB_PASSWORD")
-    db_host: str = os.getenv("DB_HOST")
-    db_port: int = os.getenv("DB_PORT")
+    db_name: str = os.environ["DB_NAME"]
+    db_engine: str = os.environ["DB_ENGINE"]
+    db_user: str = os.environ["DB_USER"]
+    db_password: str = os.environ["DB_PASSWORD"]
+    db_host: str = os.environ["DB_HOST"]
+    db_port: int = int(os.environ["DB_PORT"])
 
-    postgres_db: str = os.getenv("POSTGRES_DB")
+    postgres_db: str = os.environ["POSTGRES_DB"]
 
     base_url: str = (
         f"{db_engine}://{db_user}:{db_password}@{db_host}:{db_port}"
@@ -34,7 +34,7 @@ class DbSettings(BaseModel):
         f"postgresql+psycopg2://{db_user}:{db_password}@"
         f"{db_host}:{db_port}/{db_name}"
     )
-    echo: bool = os.getenv("DB_ECHO", True)
+    echo: bool = bool(os.environ["DB_ECHO"])
 
 
 class JWTSettings(BaseModel):
@@ -45,8 +45,8 @@ class JWTSettings(BaseModel):
 
 
 class SecuritySettings(BaseModel):
-    ALGORITHM: str = os.getenv("SECURITY_ALGORITHM")
-    SECRET_KEY: str = os.getenv("SECRET_KEY")
+    ALGORITHM: str = os.environ["SECURITY_ALGORITHM"]
+    SECRET_KEY: str = os.environ["SECRET_KEY"]
 
 
 class Settings(BaseSettings):

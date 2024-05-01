@@ -27,7 +27,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login/")
 def get_token_payload(token: str = Depends(oauth2_scheme)) -> dict[str, Any]:
     try:
         payload = decode_jwt(token)
-    except InvalidTokenError as e:
+    except InvalidTokenError:
         raise unable_decode_jwt_exception
     return payload
 

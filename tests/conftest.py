@@ -1,8 +1,9 @@
 import asyncio
+from typing import AsyncGenerator
 
 from fastapi.testclient import TestClient
 
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession
 
 import pytest
 import uvloop
@@ -48,19 +49,19 @@ async def connect_db(loop):
 
 
 @pytest.fixture(scope="session")
-def test_client():
+def test_client() -> TestClient:
     return TestClient(app)
 
 
 @pytest.fixture
-async def get_db_session() -> AsyncSession:
+async def get_db_session() -> AsyncGenerator:
     session = await get_session()
     yield session
     await session.close()
 
 
 @pytest.fixture(scope="session")
-async def test_user(get_db_session: AsyncSession):
+async def test_user(get_db_session: AsyncSession) -> None:
     test_user = User(email="test_email@gmail.com", password="Test_password22")
     get_db_session.add(test_user)
     await get_db_session.commit()

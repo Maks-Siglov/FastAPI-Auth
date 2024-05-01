@@ -32,8 +32,8 @@ async def set_session_pool(
     await get_async_pool(db_url, db_settings)
 
 
-async def get_session(db_url: str = settings.db.db_url) -> AsyncSession:
-    current_pool = await get_async_pool(db_url)
+async def get_session() -> AsyncSession:
+    current_pool = await get_async_pool(settings.db.db_url)
     return current_pool.maker()
 
 
