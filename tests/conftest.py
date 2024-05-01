@@ -1,16 +1,26 @@
 import asyncio
 
-import uvloop
 from fastapi.testclient import TestClient
 
-from sqlalchemy.ext.asyncio import AsyncSession, AsyncEngine
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 
 import pytest
+import uvloop
 
-from db.utils import create_db, create_tables, drop_db, drop_tables
-from src.core.settings import settings
+from db.utils import (
+    create_db,
+    create_tables,
+    drop_db,
+    drop_tables
+)
 from src.app import app
-from src.db.main import close_dbs, get_session, set_session_pool, get_engine
+from src.core.settings import settings
+from src.db.main import (
+    close_dbs,
+    get_engine,
+    get_session,
+    set_session_pool
+)
 from src.models import User
 
 
@@ -25,17 +35,16 @@ def loop():
 
 @pytest.fixture(scope="session", autouse=True)
 async def connect_db(loop):
-    await set_session_pool(
-        settings.db.postgres_url, {"isolation_level": "AUTOCOMMIT"}
-    )
-    bind: AsyncEngine = await get_engine(settings.db.postgres_url,)
-    await create_db(bind, settings.db.db_name)
+    await create_db(settings.db.postgres_url, settings.db.db_name)
+    await set_session_pool(settings.db.db_url)
+    bind = await get_engine()
     await create_tables(bind)
 
     yield
 
     await drop_tables(bind)
     await close_dbs()
+    await drop_db(settings.db.postgres_url, settings.db.db_name)
 
 
 @pytest.fixture(scope="session")

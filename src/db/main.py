@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
     async_sessionmaker,
-    create_async_engine,
+    create_async_engine
 )
 
 from core.settings import settings
@@ -26,18 +26,18 @@ class SessionException(Exception):
 
 
 async def set_session_pool(
-    db_url: str = settings.db.postgres_url,
+    db_url: str = settings.db.db_url,
     db_settings: dict[str, Any] | None = None,
 ) -> None:
     await get_async_pool(db_url, db_settings)
 
 
-async def get_session(db_url: str = settings.db.postgres_url) -> AsyncSession:
+async def get_session(db_url: str = settings.db.db_url) -> AsyncSession:
     current_pool = await get_async_pool(db_url)
     return current_pool.maker()
 
 
-async def get_engine(db_url: str = settings.db.postgres_url) -> AsyncEngine:
+async def get_engine(db_url: str = settings.db.db_url) -> AsyncEngine:
     current_pool = await get_async_pool(db_url)
     return current_pool.engine
 

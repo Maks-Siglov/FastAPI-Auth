@@ -20,10 +20,17 @@ class DbSettings(BaseModel):
     db_password: str = os.getenv("DB_PASSWORD")
     db_host: str = os.getenv("DB_HOST")
     db_port: int = os.getenv("DB_PORT")
-    postgres_url: str = (
-        f"{db_engine}://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+
+    postgres_db: str = os.getenv("POSTGRES_DB")
+
+    base_url: str = (
+        f"{db_engine}://{db_user}:{db_password}@{db_host}:{db_port}"
     )
-    sync_postgres_url: str = (
+    db_url: str = f"{base_url}/{db_name}"
+
+    postgres_url: str = f"{base_url}/{postgres_db}"
+
+    sync_db_url: str = (
         f"postgresql+psycopg2://{db_user}:{db_password}@"
         f"{db_host}:{db_port}/{db_name}"
     )
