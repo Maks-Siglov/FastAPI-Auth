@@ -1,3 +1,5 @@
+import asyncio
+
 from fastapi.testclient import TestClient
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,17 +13,22 @@ from src.db.main import close_dbs, get_session, set_session_pool
 from src.models import User
 
 
-@pytest.hookimpl(tryfirst=True)
-async def pytest_sessionstart(session):
-    await create_db(settings.db.test_postgres_url, settings.db.test_db_name)
-    await create_tables(settings.db.test_postgres_url)
-    await set_session_pool(settings.db.test_postgres_url)
+@pytest.fixture(scope='session')
+def loop():
+    return asyncio.get_event_loop()
+
+
+@pytest.fixture(scope='session', autouse=True)
+async def connect_db(loop):
+    await create_db(settings.db.postgres_url, settings.db.db_name)
+    await create_tables(settings.db.postgres_url)
+    await set_session_pool()
 
     yield
 
     await close_dbs()
-    await drop_tables(settings.db.test_postgres_url)
-    await drop_db(settings.db.test_postgres_url, settings.db.test_db_name)
+    await drop_tables(settings.db.postgres_url)
+    await drop_db(settings.db.postgres_url, settings.db.db_name)
 
 
 @pytest.fixture(scope="session")
@@ -31,7 +38,7 @@ def test_client():
 
 @pytest.fixture
 async def get_db_session() -> AsyncSession:
-    session = await get_session(settings.db.test_postgres_url)
+    session = await get_session()
     yield session
     await session.close()
 

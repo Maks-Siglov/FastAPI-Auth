@@ -29,12 +29,6 @@ class DbSettings(BaseModel):
     )
     echo: bool = os.getenv("DB_ECHO", True)
 
-    test_db_name: str = os.getenv("TEST_DB_NAME")
-    test_postgres_url: str = (
-        f"{db_engine}://{db_user}:{db_password}@"
-        f"{db_host}:{db_port}/{test_db_name}"
-    )
-
 
 class JWTSettings(BaseModel):
     ACCESS_TOKEN_TYPE: str = "Access"

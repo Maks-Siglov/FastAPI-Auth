@@ -2,7 +2,7 @@ import pytest
 from starlette.testclient import TestClient
 
 
-def test_read_main(test_client: TestClient):
+def test_login(test_client: TestClient):
     login_post_data = {
         "email": "test_email@gmail.com",
         "password": "Test_password22",
@@ -13,6 +13,7 @@ def test_read_main(test_client: TestClient):
     assert response.json()["detail"] == "Invalid user credentials"
 
 
+@pytest.mark.asyncio
 def test_signup(test_client: TestClient):
     signup_post_data = {
         "email": "new_user@gmail.com",
