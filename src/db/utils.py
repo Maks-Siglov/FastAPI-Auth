@@ -1,11 +1,10 @@
 from sqlalchemy.exc import ProgrammingError
-from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
 from sqlalchemy import text
 from models import Base
 
 
-async def create_db(db_url: str, db_name: str) -> None:
-    engine = create_async_engine(url=db_url, isolation_level='AUTOCOMMIT')
+async def create_db(engine: AsyncEngine, db_name: str) -> None:
     try:
         async with engine.connect() as connection:
             query = f"CREATE DATABASE {db_name};"
@@ -21,13 +20,11 @@ async def drop_db(db_url: str, db_name: str) -> None:
         await connect.execute(text(query))
 
 
-async def create_tables(db_url: str) -> None:
-    engine = create_async_engine(url=db_url, isolation_level='AUTOCOMMIT')
+async def create_tables(engine: AsyncEngine) -> None:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
 
-async def drop_tables(db_url: str) -> None:
-    engine = create_async_engine(url=db_url, isolation_level='AUTOCOMMIT')
+async def drop_tables(engine: AsyncEngine) -> None:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)

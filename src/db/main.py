@@ -1,11 +1,12 @@
 from dataclasses import dataclass
+from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
     async_sessionmaker,
-    create_async_engine
+    create_async_engine,
 )
 
 from core.settings import settings
@@ -24,8 +25,11 @@ class SessionException(Exception):
     pass
 
 
-async def set_session_pool(db_url: str = settings.db.postgres_url) -> None:
-    await get_async_pool(db_url)
+async def set_session_pool(
+    db_url: str = settings.db.postgres_url,
+    db_settings: dict[str, Any] | None = None,
+) -> None:
+    await get_async_pool(db_url, db_settings)
 
 
 async def get_session(db_url: str = settings.db.postgres_url) -> AsyncSession:
@@ -33,10 +37,18 @@ async def get_session(db_url: str = settings.db.postgres_url) -> AsyncSession:
     return current_pool.maker()
 
 
-async def get_async_pool(db_url: str) -> EnginePool:
+async def get_engine(db_url: str = settings.db.postgres_url) -> AsyncEngine:
+    current_pool = await get_async_pool(db_url)
+    return current_pool.engine
+
+
+async def get_async_pool(
+    db_url: str, db_settings: dict[str, Any] | None = None
+) -> EnginePool:
     current = session_pools.get(db_url)
     if current is None:
-        engine = create_async_engine(url=db_url)
+        db_settings = {} if db_settings is None else db_settings
+        engine = create_async_engine(url=db_url, **db_settings)
         await _check_connection(engine)
         maker = await _create_async_sessionmaker(engine)
         current = EnginePool(engine=engine, maker=maker)
