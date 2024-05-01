@@ -13,7 +13,6 @@ def test_login(test_client: TestClient):
     assert response.json()["detail"] == "Invalid user credentials"
 
 
-@pytest.mark.asyncio
 def test_signup(test_client: TestClient):
     signup_post_data = {
         "email": "new_user@gmail.com",

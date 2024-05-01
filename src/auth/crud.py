@@ -8,7 +8,7 @@ from models import User
 async def create_user(
     session: AsyncSession, user_data: UserCreationSchema
 ) -> UserSchema:
-    db_user = User(**user_data.dict())
+    db_user = User(**user_data.model_dump())
     session.add(db_user)
     await session.commit()
     await session.refresh(db_user)

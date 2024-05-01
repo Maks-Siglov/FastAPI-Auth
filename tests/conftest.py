@@ -1,5 +1,6 @@
 import asyncio
 
+import uvloop
 from fastapi.testclient import TestClient
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -15,7 +16,11 @@ from src.models import User
 
 @pytest.fixture(scope='session')
 def loop():
-    return asyncio.get_event_loop()
+    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    yield
+    loop.close()
 
 
 @pytest.fixture(scope='session', autouse=True)
