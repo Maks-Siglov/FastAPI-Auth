@@ -8,20 +8,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import pytest
 import uvloop
 
-from db.utils import (
-    create_db,
-    create_tables,
-    drop_db,
-    drop_tables
-)
+from auth.utils.password import hash_password
+from db.utils import create_db, create_tables, drop_db, drop_tables
 from src.app import app
 from src.core.settings import settings
-from src.db.main import (
-    close_dbs,
-    get_engine,
-    get_session,
-    set_session_pool
-)
+from src.db.main import close_dbs, get_engine, get_session, set_session_pool
 from src.models import User
 
 
@@ -60,8 +51,16 @@ async def get_db_session() -> AsyncGenerator:
     await session.close()
 
 
-@pytest.fixture(scope="session")
-async def test_user(get_db_session: AsyncSession) -> None:
-    test_user = User(email="test_email@gmail.com", password="Test_password22")
-    get_db_session.add(test_user)
-    await get_db_session.commit()
+@pytest.fixture(scope="session", autouse=True)
+async def test_user() -> None:
+    session = await get_session()
+    test_user = User(
+        email="test_email@gmail.com", password=hash_password("Test_password22")
+    )
+    test_in_active_user = User(
+        email="test_in_active_user@gmail.com",
+        password=hash_password("Test_password22"),
+        is_active=False,
+    )
+    session.add_all([test_user, test_in_active_user])
+    await session.commit()
