@@ -66,6 +66,8 @@ async def test_invalid_password_login(test_client: TestClient):
     assert response.status_code == 401
     assert response.json()["detail"] == "Invalid user credentials"
 
+    await pop_session()
+
 
 async def test_in_active_user_login(test_client: TestClient):
     await set_session_pool()
