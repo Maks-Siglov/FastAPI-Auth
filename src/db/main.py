@@ -1,3 +1,4 @@
+from contextvars import ContextVar
 from dataclasses import dataclass
 from typing import Any
 
@@ -10,6 +11,8 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from core.settings import settings
+
+user_db = ContextVar[AsyncSession]("user_db")
 
 
 @dataclass
@@ -25,16 +28,12 @@ class SessionException(Exception):
     pass
 
 
-async def set_session_pool(
-    db_url: str = settings.db.db_url,
-    db_settings: dict[str, Any] | None = None,
-) -> None:
-    await get_async_pool(db_url, db_settings)
-
-
-async def get_session() -> AsyncSession:
+async def set_session_pool() -> None:
     current_pool = await get_async_pool(settings.db.db_url)
-    return current_pool.maker()
+    s.user_db = current_pool.maker()
+    await s.user_db.connection(
+        execution_options={"isolation_level": "AUTOCOMMIT"}
+    )
 
 
 async def get_engine(db_url: str = settings.db.db_url) -> AsyncEngine:
@@ -74,3 +73,16 @@ async def _create_async_sessionmaker(
 async def close_dbs() -> None:
     for ses_pool in session_pools.values():
         await ses_pool.engine.dispose()
+
+
+class Session:
+    @property
+    def user_db(self) -> AsyncSession:
+        return user_db.get()
+
+    @user_db.setter
+    def user_db(self, value: AsyncSession) -> None:
+        user_db.set(value)
+
+
+s = Session()

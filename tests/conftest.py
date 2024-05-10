@@ -3,8 +3,6 @@ from typing import AsyncGenerator
 
 from fastapi.testclient import TestClient
 
-from sqlalchemy.ext.asyncio import AsyncSession
-
 import pytest
 import uvloop
 
@@ -12,7 +10,7 @@ from auth.utils.password import hash_password
 from db.utils import create_db, create_tables, drop_db, drop_tables
 from src.app import app
 from src.core.settings import settings
-from src.db.main import close_dbs, get_engine, get_session, set_session_pool
+from src.db.main import close_dbs, get_engine, set_session_pool, s
 from src.models import User
 
 
@@ -28,7 +26,7 @@ def loop():
 @pytest.fixture(scope="session", autouse=True)
 async def connect_db(loop):
     await create_db(settings.db.postgres_url, settings.db.db_name)
-    await set_session_pool(settings.db.db_url)
+    await set_session_pool()
     bind = await get_engine()
     await create_tables(bind)
 
@@ -44,16 +42,10 @@ def test_client() -> TestClient:
     return TestClient(app)
 
 
-@pytest.fixture
-async def get_db_session() -> AsyncGenerator:
-    session = await get_session()
-    yield session
-    await session.close()
-
-
 @pytest.fixture(scope="session", autouse=True)
 async def test_user() -> None:
-    session = await get_session()
+    await set_session_pool()
+
     test_user = User(
         email="test_email@gmail.com", password=hash_password("Test_password22")
     )
@@ -62,5 +54,5 @@ async def test_user() -> None:
         password=hash_password("Test_password22"),
         is_active=False,
     )
-    session.add_all([test_user, test_in_active_user])
-    await session.commit()
+    s.user_db.add_all([test_user, test_in_active_user])
+    await s.user_db.commit()

@@ -15,7 +15,8 @@ class AppSettings(BaseModel):
 
 class DbSettings(BaseModel):
     db_name: str = os.environ["DB_NAME"]
-    db_engine: str = os.environ["DB_ENGINE"]
+    async_db_engine: str = os.environ["ASYNC_DB_ENGINE"]
+    sync_db_engine: str = os.environ["SYNC_DB_ENGINE"]
     db_user: str = os.environ["DB_USER"]
     db_password: str = os.environ["DB_PASSWORD"]
     db_host: str = os.environ["DB_HOST"]
@@ -24,14 +25,14 @@ class DbSettings(BaseModel):
     postgres_db: str = os.environ["POSTGRES_DB"]
 
     base_url: str = (
-        f"{db_engine}://{db_user}:{db_password}@{db_host}:{db_port}"
+        f"{async_db_engine}://{db_user}:{db_password}@{db_host}:{db_port}"
     )
     db_url: str = f"{base_url}/{db_name}"
 
     postgres_url: str = f"{base_url}/{postgres_db}"
 
     sync_db_url: str = (
-        f"postgresql+psycopg2://{db_user}:{db_password}@"
+        f"{sync_db_engine}://{db_user}:{db_password}@"
         f"{db_host}:{db_port}/{db_name}"
     )
     echo: bool = bool(os.environ["DB_ECHO"])
