@@ -99,3 +99,11 @@ async def refresh_access_token(
 ) -> AccessTokenSchema:
     access_token = create_access_token(user)
     return AccessTokenSchema(access_token=access_token)
+
+
+@router.post("/deactivate/")
+async def deactivate_user(user: User = Depends(get_current_user)):
+    user.is_active = False
+    await s.user_db.commit()
+    await s.user_db.refresh(user)
+    return UserSchema(**user.__dict__)

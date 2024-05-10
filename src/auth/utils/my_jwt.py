@@ -10,8 +10,8 @@ from models import User
 def create_jwt(token_type: str, token_data: dict, expire_time: int) -> str:
     jwt_payload = {"type": token_type}
     now = datetime.utcnow()
-    jwt_payload["iat"] = now.isoformat()
-    jwt_payload["exp"] = (now + timedelta(minutes=expire_time)).isoformat()
+    jwt_payload["iat"] = now
+    jwt_payload["exp"] = (now + timedelta(minutes=expire_time))
 
     jwt_payload.update(token_data)
     return jwt.encode(
