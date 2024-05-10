@@ -9,7 +9,8 @@ from auth.utils.password import hash_password
 from db.utils import create_db, create_tables, drop_db, drop_tables
 from src.app import app
 from src.core.settings import settings
-from src.db.main import close_dbs, get_engine, set_session_pool, s
+from src.db.session import close_dbs, get_engine, set_session_pool, s, \
+    pop_session
 from src.models import User
 
 
@@ -30,8 +31,8 @@ async def connect_db(loop):
     await create_tables(bind)
 
     yield
-
     await drop_tables(bind)
+    await pop_session()
     await close_dbs()
     await drop_db(settings.db.postgres_url, settings.db.db_name)
 
@@ -55,3 +56,6 @@ async def test_user() -> None:
     )
     s.user_db.add_all([test_user, test_in_active_user])
     await s.user_db.commit()
+
+    await pop_session()
+

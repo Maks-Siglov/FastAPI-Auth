@@ -7,7 +7,7 @@ from fastapi.security import HTTPBearer
 
 from admin.crud import filtered_users, sorted_users
 from auth.schemas.user import UsersResponseSchema
-from db.main import set_session_pool
+from db.session import set_session_pool
 
 http_bearer = HTTPBearer(auto_error=False)
 

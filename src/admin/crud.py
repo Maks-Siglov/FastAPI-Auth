@@ -1,6 +1,6 @@
 from sqlalchemy import select
 
-from db.main import s
+from db.session import s
 from models import User
 
 

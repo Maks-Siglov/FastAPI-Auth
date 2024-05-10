@@ -1,7 +1,7 @@
 from sqlalchemy import select
 
 from auth.schemas.user import UserCreationSchema, UserSchema
-from db.main import s
+from db.session import s
 from models import User
 
 

@@ -2,9 +2,11 @@ import pytest
 from starlette.testclient import TestClient
 
 from auth.schemas.token import TokenSchema
+from db.session import set_session_pool, pop_session
 
 
-def test_signup(test_client: TestClient):
+async def test_signup(test_client: TestClient):
+    await set_session_pool()
     signup_post_data = {
         "email": "new_user@gmail.com",
         "password": "Test_password22",
@@ -12,6 +14,7 @@ def test_signup(test_client: TestClient):
     response = test_client.post("/auth/signup/", json=signup_post_data)
     assert response.status_code == 200
 
+    await pop_session()
 
 INVALID_SIGNUP_DATA = [
     ({"email": "string", "password": "Test_password22"}, 422),
@@ -23,14 +26,18 @@ INVALID_SIGNUP_DATA = [
 
 
 @pytest.mark.parametrize("login_data, expected_code", INVALID_SIGNUP_DATA)
-def test_invalid_signup(
+async def test_invalid_signup(
     test_client: TestClient, login_data: dict[str, str], expected_code: int
 ):
+    await set_session_pool()
     response = test_client.post("/auth/signup/", json=login_data)
     assert response.status_code == expected_code
 
+    await pop_session()
 
-def test_login(test_client: TestClient):
+
+async def test_login(test_client: TestClient):
+    await set_session_pool()
     login_post_data = {
         "email": "test_email@gmail.com",
         "password": "Test_password22",
@@ -45,8 +52,11 @@ def test_login(test_client: TestClient):
     assert token_data.refresh_token is not None
     assert token_data.token_type is not None
 
+    await pop_session()
 
-def test_invalid_password_login(test_client: TestClient):
+
+async def test_invalid_password_login(test_client: TestClient):
+    await set_session_pool()
     login_post_data = {
         "email": "test_email@gmail.com",
         "password": "Wrong_password22"
@@ -57,7 +67,8 @@ def test_invalid_password_login(test_client: TestClient):
     assert response.json()["detail"] == "Invalid user credentials"
 
 
-def test_in_active_user_login(test_client: TestClient):
+async def test_in_active_user_login(test_client: TestClient):
+    await set_session_pool()
     login_post_data = {
         "email": "test_in_active_user@gmail.com",
         "password": "Test_password22"
@@ -66,3 +77,5 @@ def test_in_active_user_login(test_client: TestClient):
 
     assert response.status_code == 401
     assert response.json()["detail"] == "User is not active"
+
+    await pop_session()

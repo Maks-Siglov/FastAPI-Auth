@@ -32,7 +32,7 @@ from auth.utils.my_jwt import (
     revoke_jwt
 )
 from auth.utils.password import hash_password, verify_password
-from db.main import s, set_session_pool
+from db.session import s, set_session_pool
 from models import User
 
 router = APIRouter(

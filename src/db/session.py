@@ -1,3 +1,4 @@
+import logging
 from contextvars import ContextVar
 from dataclasses import dataclass
 from typing import Any
@@ -11,6 +12,9 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from core.settings import settings
+
+log = logging.getLogger(__name__)
+
 
 user_db = ContextVar[AsyncSession]("user_db")
 
@@ -60,7 +64,9 @@ async def _check_connection(engine: AsyncEngine) -> None:
     try:
         async with engine.connect() as conn:
             await conn.execute(select(1))
+            log.info("Connection success")
     except Exception as e:
+        log.error("During check connection error occurred")
         raise SessionException(e)
 
 
@@ -73,6 +79,17 @@ async def _create_async_sessionmaker(
 async def close_dbs() -> None:
     for ses_pool in session_pools.values():
         await ses_pool.engine.dispose()
+    log.info("Session pools closed")
+
+
+async def pop_session() -> None:
+    try:
+        await s.user_db.commit()
+    except Exception as e:
+        await s.user_db.rollback()
+        log.error(f"During session error occurred {str(e)}.Session ROLLBACK ")
+    finally:
+        await s.user_db.close()
 
 
 class Session:

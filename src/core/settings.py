@@ -38,6 +38,10 @@ class DbSettings(BaseModel):
     echo: bool = bool(os.environ["DB_ECHO"])
 
 
+class Log(BaseModel):
+    level: str = os.environ["LOGGER_LEVEL"]
+
+
 class JWTSettings(BaseModel):
     ACCESS_TOKEN_TYPE: str = "Access"
     REFRESH_TOKEN_TYPE: str = "Refresh"
@@ -55,6 +59,7 @@ class Settings(BaseSettings):
     db: DbSettings = DbSettings()
     jwt: JWTSettings = JWTSettings()
     security: SecuritySettings = SecuritySettings()
+    log: Log = Log()
 
 
 settings = Settings()

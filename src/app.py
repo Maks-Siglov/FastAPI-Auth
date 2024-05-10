@@ -9,8 +9,9 @@ import uvloop
 from admin.views import admin_router
 from auth.views import router as auth_router
 from core.settings import settings
-from db.main import close_dbs, set_session_pool
+from db.session import close_dbs, set_session_pool
 from error_handler import http_exception_handler
+from logger import logger_config
 
 
 @asynccontextmanager
@@ -22,8 +23,9 @@ async def lifespan(my_app: FastAPI):
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
-app = FastAPI(lifespan=lifespan)
+logger_config()
 
+app = FastAPI(lifespan=lifespan)
 
 app.include_router(auth_router)
 app.include_router(admin_router)
