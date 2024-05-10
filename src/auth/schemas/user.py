@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import (
     BaseModel,
     EmailStr,
@@ -22,6 +24,17 @@ class UserSchema(BaseUserSchema):
     is_active: bool = Field(
         default=True, description="Whether the user is active."
     )
+
+
+class UserResponseSchema(UserSchema):
+    created_at: datetime = Field(description="The date the user was created.")
+    updated_at: datetime = Field(
+        description="The date the user was last updated."
+    )
+
+
+class UsersResponseSchema(BaseModel):
+    users: list[UserResponseSchema]
 
 
 class UserCreationSchema(BaseUserSchema):

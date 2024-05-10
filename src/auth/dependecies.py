@@ -3,7 +3,6 @@ from typing import Any
 from fastapi import Depends
 from fastapi.security import HTTPBearer, OAuth2PasswordBearer
 
-
 from jwt import InvalidTokenError
 
 from auth.crud import get_user_by_email

@@ -6,6 +6,7 @@ from fastapi import FastAPI, HTTPException
 import uvicorn
 import uvloop
 
+from admin.views import admin_router
 from auth.views import router as auth_router
 from core.settings import settings
 from db.main import close_dbs, set_session_pool
@@ -23,7 +24,10 @@ asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 app = FastAPI(lifespan=lifespan)
 
+
 app.include_router(auth_router)
+app.include_router(admin_router)
+
 app.add_exception_handler(HTTPException, http_exception_handler)
 
 if __name__ == "__main__":
