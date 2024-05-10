@@ -46,8 +46,14 @@ router = APIRouter(
 async def signup(
     payload: UserCreationSchema = OAuth2PasswordRequestForm,
 ) -> UserSchema:
-    if await get_user_by_email(email=payload.email) is not None:
-        raise repeat_email_exception
+    if (user := await get_user_by_email(email=payload.email)) is not None:
+        if user.is_active:
+            raise repeat_email_exception
+
+        user.is_active = True
+        await s.user_db.commit()
+        await s.user_db.refresh(user)
+        return UserSchema(**user.__dict__)
 
     payload.password = hash_password(payload.password)
     return await create_user(user_data=payload)
