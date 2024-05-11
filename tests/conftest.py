@@ -12,7 +12,7 @@ from db.utils import (
     drop_db,
     drop_tables
 )
-from src.app import app
+from src.app import create_app
 from src.core.settings import settings
 from src.db.session import (
     close_dbs,
@@ -48,6 +48,7 @@ async def connect_db(loop):
 
 @pytest.fixture(scope="session")
 def test_client() -> TestClient:
+    app = create_app()
     return TestClient(app)
 
 

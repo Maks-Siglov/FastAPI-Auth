@@ -3,8 +3,8 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
 
-import uvicorn
 import uvloop
+from uvicorn import Config, Server
 
 from admin.views import admin_router
 from auth.views import router as auth_router
@@ -21,21 +21,32 @@ async def lifespan(my_app: FastAPI):
     await close_dbs()
 
 
-asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+def create_app() -> FastAPI:
+    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
-logger_config()
+    logger_config()
 
-app = FastAPI(lifespan=lifespan)
+    app = FastAPI(lifespan=lifespan)
 
-app.include_router(auth_router)
-app.include_router(admin_router)
+    app.include_router(auth_router)
+    app.include_router(admin_router)
 
-app.add_exception_handler(HTTPException, http_exception_handler)
+    app.add_exception_handler(HTTPException, http_exception_handler)
 
-if __name__ == "__main__":
-    uvicorn.run(
-        "app:app",
+    return app
+
+
+def create_server() -> Server:
+    app = create_app()
+    config = Config(
+        app=app,
         host=settings.app.host,
         port=settings.app.port,
         reload=settings.app.reload,
     )
+    return Server(config=config)
+
+
+if __name__ == "__main__":
+    server = create_server()
+    server.run()
