@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
 from auth.crud import create_user, get_user_by_email
-from auth.dependecies import (
+from auth.dependencies import (
     get_current_user,
     get_token_payload,
     get_user_from_refresh_token,
@@ -32,13 +32,13 @@ from auth.utils.my_jwt import (
     revoke_jwt
 )
 from auth.utils.password import hash_password, verify_password
-from db.session import s, set_session_pool
+from db.session import handle_session, s
 from models import User
 
 router = APIRouter(
     prefix="/auth",
     tags=["auth"],
-    dependencies=[Depends(http_bearer), Depends(set_session_pool)],
+    dependencies=[Depends(http_bearer), Depends(handle_session)],
 )
 
 

@@ -6,11 +6,21 @@ import pytest
 import uvloop
 
 from auth.utils.password import hash_password
-from db.utils import create_db, create_tables, drop_db, drop_tables
+from db.utils import (
+    create_db,
+    create_tables,
+    drop_db,
+    drop_tables
+)
 from src.app import app
 from src.core.settings import settings
-from src.db.session import close_dbs, get_engine, set_session_pool, s, \
-    pop_session
+from src.db.session import (
+    close_dbs,
+    get_engine,
+    pop_session,
+    s,
+    set_session_pool
+)
 from src.models import User
 
 
@@ -26,13 +36,12 @@ def loop():
 @pytest.fixture(scope="session", autouse=True)
 async def connect_db(loop):
     await create_db(settings.db.postgres_url, settings.db.db_name)
-    await set_session_pool()
     bind = await get_engine()
     await create_tables(bind)
 
     yield
+
     await drop_tables(bind)
-    await pop_session()
     await close_dbs()
     await drop_db(settings.db.postgres_url, settings.db.db_name)
 
@@ -58,4 +67,3 @@ async def test_user() -> None:
     await s.user_db.commit()
 
     await pop_session()
-

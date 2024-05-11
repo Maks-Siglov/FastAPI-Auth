@@ -1,12 +1,13 @@
 import logging
+from asyncio import current_task
 from contextvars import ContextVar
 from dataclasses import dataclass
-from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
+    async_scoped_session,
     async_sessionmaker,
     create_async_engine
 )
@@ -40,24 +41,38 @@ async def set_session_pool() -> None:
     )
 
 
+async def _create_connection() -> async_scoped_session[AsyncSession]:
+    current_pool = await get_async_pool(settings.db.db_url)
+    ses = async_scoped_session(current_pool.maker, scopefunc=current_task)
+    return ses
+
+
 async def get_engine(db_url: str = settings.db.db_url) -> AsyncEngine:
     current_pool = await get_async_pool(db_url)
     return current_pool.engine
 
 
-async def get_async_pool(
-    db_url: str, db_settings: dict[str, Any] | None = None
-) -> EnginePool:
+async def get_async_pool(db_url: str) -> EnginePool:
     current = session_pools.get(db_url)
     if current is None:
-        db_settings = {} if db_settings is None else db_settings
-        engine = create_async_engine(url=db_url, **db_settings)
+        engine = _create_async_engine(db_url)
         await _check_connection(engine)
-        maker = await _create_async_sessionmaker(engine)
+        maker = _create_async_sessionmaker(engine)
         current = EnginePool(engine=engine, maker=maker)
         session_pools[db_url] = current
 
     return current
+
+
+def _create_async_engine(
+    url: str, isolation_level: str = "AUTOCOMMIT"
+) -> AsyncEngine:
+    return create_async_engine(
+        url=url,
+        isolation_level=isolation_level,
+        echo=settings.db.echo,
+        future=True,
+    )
 
 
 async def _check_connection(engine: AsyncEngine) -> None:
@@ -70,10 +85,21 @@ async def _check_connection(engine: AsyncEngine) -> None:
         raise SessionException(e)
 
 
-async def _create_async_sessionmaker(
+def _create_async_sessionmaker(
     engine: AsyncEngine,
 ) -> async_sessionmaker:
     return async_sessionmaker(bind=engine, expire_on_commit=False, future=True)
+
+
+async def handle_session():
+    AsyncScopedSession = await _create_connection()
+    s.user_db = AsyncScopedSession()
+    try:
+        yield
+        await AsyncScopedSession.commit()
+    finally:
+        await s.user_db.close()
+        await AsyncScopedSession.remove()
 
 
 async def close_dbs() -> None:
