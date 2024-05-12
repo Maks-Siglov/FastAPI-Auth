@@ -52,3 +52,9 @@ unable_decode_jwt_exception = HTTPException(
     detail="Unable to decode JWT",
     headers={"WWW-Authenticate": "Bearer"},
 )
+
+invalid_user_cache_id_exception = HTTPException(
+    status_code=status.HTTP_409_CONFLICT,
+    detail="User cache id is invalid",
+    headers={"WWW-Authenticate": "Bearer"},
+)

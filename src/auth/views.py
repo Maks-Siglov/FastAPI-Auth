@@ -113,3 +113,8 @@ async def deactivate_user(user: User = Depends(get_current_user)):
     await s.user_db.commit()
     await s.user_db.refresh(user)
     return UserSchema(**user.__dict__)
+
+
+@router.get("/")
+async def protect_test(user: User = Depends(get_current_user)):
+    return {"message": f"Hi {user.email}"}

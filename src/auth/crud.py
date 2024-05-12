@@ -16,3 +16,7 @@ async def create_user(user_data: UserCreationSchema) -> UserSchema:
 async def get_user_by_email(email: str) -> User | None:
     query = select(User).filter(User.email == email)
     return await s.user_db.scalar(query)
+
+
+async def get_user(user_id: int) -> User | None:
+    return await s.user_db.get(User, user_id)

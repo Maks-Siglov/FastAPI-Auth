@@ -15,12 +15,13 @@ class AppSettings(BaseModel):
 
 class DbSettings(BaseModel):
     db_name: str = os.environ["DB_NAME"]
-    async_db_engine: str = os.environ["ASYNC_DB_ENGINE"]
-    sync_db_engine: str = os.environ["SYNC_DB_ENGINE"]
     db_user: str = os.environ["DB_USER"]
     db_password: str = os.environ["DB_PASSWORD"]
     db_host: str = os.environ["DB_HOST"]
     db_port: int = int(os.environ["DB_PORT"])
+
+    async_db_engine: str = os.environ["ASYNC_DB_ENGINE"]
+    sync_db_engine: str = os.environ["SYNC_DB_ENGINE"]
 
     postgres_db: str = os.environ["POSTGRES_DB"]
 
@@ -38,8 +39,14 @@ class DbSettings(BaseModel):
     echo: bool = bool(os.environ["DB_ECHO"])
 
 
-class Log(BaseModel):
+class LogSettings(BaseModel):
     level: str = os.environ["LOGGER_LEVEL"]
+
+
+class RedisSettings(BaseModel):
+    host: str = "localhost"
+    port: int = 6379
+    url: str = "redis://localhost:6379"
 
 
 class JWTSettings(BaseModel):
@@ -59,7 +66,8 @@ class Settings(BaseSettings):
     db: DbSettings = DbSettings()
     jwt: JWTSettings = JWTSettings()
     security: SecuritySettings = SecuritySettings()
-    log: Log = Log()
+    log: LogSettings = LogSettings()
+    redis: RedisSettings = RedisSettings()
 
 
 settings = Settings()
