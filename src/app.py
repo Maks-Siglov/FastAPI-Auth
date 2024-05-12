@@ -36,8 +36,7 @@ def create_app() -> FastAPI:
     return app
 
 
-def create_server() -> Server:
-    app = create_app()
+def create_server(app: FastAPI) -> Server:
     config = Config(
         app=app,
         host=settings.app.host,
@@ -48,5 +47,6 @@ def create_server() -> Server:
 
 
 if __name__ == "__main__":
-    server = create_server()
+    app = create_app()
+    server = create_server(app)
     server.run()

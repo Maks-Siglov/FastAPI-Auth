@@ -1,4 +1,8 @@
-from sqlalchemy import select
+from sqlalchemy import (
+    Result,
+    Row,
+    select
+)
 
 from db.session import s
 from models import User
@@ -6,7 +10,7 @@ from models import User
 
 async def filtered_users(
     id: int | None, email: str | None, is_active: bool | None
-):
+) -> Result[Row[User]]:
     query = select(User)
     if id is not None:
         query = query.where(User.id == id)
@@ -15,12 +19,12 @@ async def filtered_users(
     if is_active is not None:
         query = query.where(User.is_active == is_active)
 
-    return await s.user_db.scalars(query)
+    return await s.user_db.execute(query)
 
 
 async def sorted_users(
     is_active: bool | None, created_at: bool | None, desc: bool
-):
+) -> Result[Row[User]]:
     query = select(User)
 
     if created_at is not None:
@@ -34,4 +38,4 @@ async def sorted_users(
     else:
         query = query.order_by(User.id.desc() if desc else User.id)
 
-    return await s.user_db.scalars(query)
+    return await s.user_db.execute(query)
