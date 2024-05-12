@@ -18,6 +18,11 @@ services:
     image: postgres:16.2
     container_name: postgres_fast_auth
     restart: always
+    environment:
+      - DB_HOST=postgres_fast_auth
+      - DB_NAME=fast_auth
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
     env_file:
       - .env.docker
     volumes:
@@ -45,3 +50,4 @@ networks:
 
 volumes:
   postgres-db-volume:
+  redis-db-volume:
