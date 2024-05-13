@@ -1,6 +1,8 @@
 services:
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     user: ${CURRENT_UID}
     container_name: fast_auth
     restart: always
@@ -8,7 +10,14 @@ services:
       - "127.0.0.1:8000:8000"
     env_file:
       - .env.docker
-    command: ["sh", "-c", "python app.py"]
+    volumes:
+      - ./src:/src
+      - ./migrations:/migrations
+      - ./alembic.ini:/alembic.ini
+    command: [
+      "sh", "-c",
+      "cd .. && alembic upgrade head && cd src && python app.py"
+    ]
     depends_on:
       - db
     networks:
@@ -20,7 +29,7 @@ services:
     restart: always
     environment:
       - DB_HOST=postgres_fast_auth
-      - DB_NAME=fast_auth
+      - POSTGRES_DB=fast_auth
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=admin
     env_file:
@@ -28,7 +37,7 @@ services:
     volumes:
       - postgres-db-volume:/var/lib/postgresql/data
     ports:
-      - "127.0.0.1:5433:5432"
+      - "127.0.0.1:5432:5432"
     networks:
       - mynetwork
 

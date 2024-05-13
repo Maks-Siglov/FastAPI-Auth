@@ -23,7 +23,7 @@ class DbSettings(BaseModel):
     async_db_engine: str = os.environ["ASYNC_DB_ENGINE"]
     sync_db_engine: str = os.environ["SYNC_DB_ENGINE"]
 
-    postgres_db: str = os.environ["POSTGRES_DB"]
+    postgres_db: str = os.environ["BASE_POSTGRES_DB"]
 
     base_url: str = (
         f"{async_db_engine}://{db_user}:{db_password}@{db_host}:{db_port}"

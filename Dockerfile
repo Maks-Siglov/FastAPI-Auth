@@ -2,7 +2,7 @@ FROM python:3.11.6-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends build-essential gcc python3-dev
 
-WORKDIR /app
+WORKDIR /src
 
 COPY requirements/prod.txt .
 
