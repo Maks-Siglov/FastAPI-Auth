@@ -1,23 +1,21 @@
-import time
+import json
 from typing import Any
 
 from fastapi import Depends
 from fastapi.security import HTTPBearer, OAuth2PasswordBearer
 
-from jwt import InvalidTokenError
-from redis import Redis
+from redis.asyncio import Redis
 
-from auth.crud import get_user, get_user_by_email
+from auth.crud import get_user_by_email
 from auth.exceptions import (
+    credential_exceptions,
     invalid_token_credential_exception,
     invalid_token_exception,
     invalid_token_type_exception,
-    invalid_user_cache_id_exception,
     revoked_token_error,
-    unable_decode_jwt_exception
 )
-from auth.utils.my_jwt import decode_jwt, validate_token_type
-from core.redis_config import get_redis
+from auth.utils.my_jwt import validate_token_type
+from core.redis_config import get_redis_client
 from core.settings import settings
 from models import User
 
@@ -25,27 +23,19 @@ http_bearer = HTTPBearer(auto_error=False)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login/")
 
 
-def get_token_payload(token: str = Depends(oauth2_scheme)) -> dict[str, Any]:
-    try:
-        payload = decode_jwt(token)
-    except InvalidTokenError:
-        raise unable_decode_jwt_exception
-    return payload
+async def get_token_payload(
+    token: str = Depends(oauth2_scheme),
+    redis: Redis = Depends(get_redis_client),
+) -> dict[str, Any]:
+    if (payload := await redis.get(token)) is None:
+        raise credential_exceptions
+
+    return json.loads(payload)
 
 
 async def get_current_user(
-    token: str = Depends(oauth2_scheme), redis: Redis = Depends(get_redis)
+    token_payload: dict[str, Any] = Depends(get_token_payload),
 ) -> User:
-    if (user_id := redis.get(token)) is not None:
-        user_id = int(user_id.decode("utf-8"))
-        if (user := await get_user(user_id)) is None:
-            raise invalid_user_cache_id_exception
-        return user
-
-    try:
-        token_payload = decode_jwt(token)
-    except InvalidTokenError:
-        raise unable_decode_jwt_exception
 
     if (email := token_payload.get("sub")) is None:
         raise invalid_token_exception
@@ -56,8 +46,6 @@ async def get_current_user(
     if (user := await get_user_by_email(email=email)) is None:
         raise invalid_token_credential_exception
 
-    expiration = token_payload["exp"] - int(time.time())
-    await redis.set(name=token, value=user.id, ex=expiration)
     return user
 
 

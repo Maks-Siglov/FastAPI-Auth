@@ -8,22 +8,26 @@ from models import User
 
 
 def create_jwt(
-    token_type: str, token_data: dict, expire_time_seconds: int
-) -> str:
+    token_type: str,
+    token_data: dict,
+    expire_time_seconds: int,
+) -> tuple[str, dict[str, Any]]:
     jwt_payload = {"type": token_type}
     now = int(time.time())
     jwt_payload["iat"] = now
     jwt_payload["exp"] = now + expire_time_seconds
 
     jwt_payload.update(token_data)
-    return jwt.encode(
+    token = jwt.encode(
         payload=jwt_payload,
         algorithm=settings.security.ALGORITHM,
         key=settings.security.SECRET_KEY,
     )
 
+    return token, jwt_payload
 
-def create_access_token(user: User) -> str:
+
+def create_access_token(user: User) -> tuple[str, dict[str, Any]]:
     jwt_payload = {
         "sub": user.email,
         "id": user.id,
@@ -37,7 +41,7 @@ def create_access_token(user: User) -> str:
     )
 
 
-def create_refresh_token(user: User) -> str:
+def create_refresh_token(user: User) -> tuple[str, dict[str, Any]]:
     jwt_payload = {"sub": user.email, "token_revoked": False}
     return create_jwt(
         settings.jwt.REFRESH_TOKEN_TYPE,

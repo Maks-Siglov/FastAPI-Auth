@@ -1,9 +1,9 @@
-import redis
+from redis.asyncio import Redis
 
 from core.settings import settings
 
-redis_client = redis.Redis(host=settings.redis.host, port=settings.redis.port)
 
-
-async def get_redis() -> redis.Redis:
+async def get_redis_client():
+    redis_client = Redis(host=settings.redis.host, port=settings.redis.port)
     yield redis_client
+    await redis_client.aclose()

@@ -52,7 +52,7 @@ class RedisSettings(BaseModel):
 class JWTSettings(BaseModel):
     ACCESS_TOKEN_TYPE: str = "Access"
     REFRESH_TOKEN_TYPE: str = "Refresh"
-    ACCESS_TOKEN_EXPIRE_SECONDS: int = 5 * 60
+    ACCESS_TOKEN_EXPIRE_SECONDS: int = 15 * 60
     REFRESH_TOKEN_EXPIRE_SECONDS: int = 30 * 24 * 30 * 60
 
 

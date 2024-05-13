@@ -1,37 +1,42 @@
+import json
+import time
 from typing import Any
 
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
+
+from redis.asyncio import Redis
 
 from auth.crud import create_user, get_user_by_email
 from auth.dependencies import (
     get_current_user,
     get_token_payload,
     get_user_from_refresh_token,
-    http_bearer
+    http_bearer,
 )
 from auth.exceptions import (
     credential_exceptions,
     not_active_user_exception,
-    repeat_email_exception
+    repeat_email_exception,
 )
 from auth.schemas.token import (
     AccessTokenSchema,
     RevokedAccessTokenSchema,
-    TokenSchema
+    TokenSchema,
 )
 from auth.schemas.user import (
     ChangePasswordSchema,
     UserCreationSchema,
     UserLoginSchema,
-    UserSchema
+    UserSchema,
 )
 from auth.utils.my_jwt import (
     create_access_token,
     create_refresh_token,
-    revoke_jwt
+    revoke_jwt,
 )
 from auth.utils.password import hash_password, verify_password
+from core.redis_config import get_redis_client
 from db.session import handle_session, s
 from models import User
 
@@ -62,6 +67,7 @@ async def signup(
 @router.post("/login/", response_model=TokenSchema)
 async def login(
     payload: UserLoginSchema = OAuth2PasswordRequestForm,
+    redis_client: Redis = Depends(get_redis_client),
 ) -> TokenSchema:
     user = await get_user_by_email(email=payload.email)
     if user is None or not verify_password(payload.password, user.password):
@@ -70,8 +76,20 @@ async def login(
     if not user.is_active:
         raise not_active_user_exception
 
-    access_token = create_access_token(user)
-    refresh_token = create_refresh_token(user)
+    access_token, access_payload = create_access_token(user)
+    refresh_token, refresh_payload = create_refresh_token(user)
+
+    now = int(time.time())
+    await redis_client.set(
+        name=access_token,
+        value=json.dumps(access_payload),
+        ex=access_payload["exp"] - now,
+    )
+    await redis_client.set(
+        name=refresh_token,
+        value=json.dumps(refresh_payload),
+        ex=refresh_payload["exp"] - now,
+    )
 
     return TokenSchema(access_token=access_token, refresh_token=refresh_token)
 

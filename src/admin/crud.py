@@ -1,8 +1,4 @@
-from sqlalchemy import (
-    Result,
-    Row,
-    select
-)
+from sqlalchemy import Result, Row, select
 
 from db.session import s
 from models import User

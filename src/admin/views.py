@@ -1,8 +1,4 @@
-from fastapi import (
-    APIRouter,
-    Depends,
-    Query
-)
+from fastapi import APIRouter, Depends, Query
 from fastapi.security import HTTPBearer
 
 from admin.crud import filtered_users, sorted_users
