@@ -44,9 +44,9 @@ class LogSettings(BaseModel):
 
 
 class RedisSettings(BaseModel):
-    host: str = "localhost"
-    port: int = 6379
-    url: str = "redis://localhost:6379"
+    host: str = os.environ["REDIS_HOST"]
+    port: int = os.environ["REDIS_PORT"]
+    url: str = f"redis://{host}:{port}"
 
 
 class JWTSettings(BaseModel):
