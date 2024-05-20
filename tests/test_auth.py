@@ -13,7 +13,7 @@ def test_signup(test_client: TestClient):
         "password": "Test_password22",
     }
     response = test_client.post(f"{API_V1}/auth/signup/", json=signup_post_data)
-    assert response.status_code == 200
+    assert response.status_code == 201
 
 
 INVALID_SIGNUP_DATA = [

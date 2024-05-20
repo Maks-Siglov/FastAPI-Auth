@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
 from redis.asyncio import Redis
+from starlette import status
 
 from auth.crud import create_user, get_user_by_email
 from auth.dependencies import (
@@ -47,7 +48,17 @@ auth_router = APIRouter(
 )
 
 
-@auth_router.post("/signup/", response_model=UserSchema)
+@auth_router.post(
+    "/signup/",
+    response_model=None,
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        status.HTTP_201_CREATED: {"model": UserSchema},
+        status.HTTP_422_UNPROCESSABLE_ENTITY: {
+            "description": repeat_email_exception.detail
+        },
+    },
+)
 async def signup(
     payload: UserCreationSchema = OAuth2PasswordRequestForm,
 ) -> UserSchema:
@@ -64,7 +75,17 @@ async def signup(
     return await create_user(user_data=payload)
 
 
-@auth_router.post("/login/", response_model=TokenSchema)
+@auth_router.post(
+    "/login/",
+    response_model=None,
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_200_OK: {"model": TokenSchema},
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "Invalid credentials or user is not active"
+        },
+    },
+)
 async def login(
     payload: UserLoginSchema = OAuth2PasswordRequestForm,
     redis_client: Redis = Depends(get_redis_client),
@@ -94,7 +115,17 @@ async def login(
     return TokenSchema(access_token=access_token, refresh_token=refresh_token)
 
 
-@auth_router.post("/change-password/", response_model=UserSchema)
+@auth_router.post(
+    "/change-password/",
+    response_model=None,
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_200_OK: {"model": UserSchema},
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": credential_exceptions.detail
+        },
+    },
+)
 async def change_password(
     payload: ChangePasswordSchema,
     user: User = Depends(get_current_user),
@@ -109,7 +140,12 @@ async def change_password(
     return UserSchema(**user.__dict__)
 
 
-@auth_router.post("/logout/", response_model=RevokedAccessTokenSchema)
+@auth_router.post(
+    "/logout/",
+    response_model=None,
+    status_code=status.HTTP_200_OK,
+    responses={status.HTTP_200_OK: {"model": RevokedAccessTokenSchema}},
+)
 async def logout(
     payload: dict[str, Any] = Depends(get_token_payload),
 ) -> RevokedAccessTokenSchema:
@@ -117,7 +153,12 @@ async def logout(
     return RevokedAccessTokenSchema(access_token=revoked_token)
 
 
-@auth_router.post("/refresh/", response_model=AccessTokenSchema)
+@auth_router.post(
+    "/refresh/",
+    response_model=None,
+    status_code=status.HTTP_201_CREATED,
+    responses={status.HTTP_201_CREATED: {"model": AccessTokenSchema}},
+)
 async def refresh_access_token(
     user: User = Depends(get_user_from_refresh_token),
 ) -> AccessTokenSchema:
@@ -125,8 +166,17 @@ async def refresh_access_token(
     return AccessTokenSchema(access_token=access_token)
 
 
-@auth_router.post("/deactivate/")
-async def deactivate_user(user: User = Depends(get_current_user)):
+@auth_router.post(
+    "/deactivate/",
+    response_model=None,
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_200_OK: {"model": UserSchema}
+    },
+)
+async def deactivate_user(
+    user: User = Depends(get_current_user),
+) -> UserSchema:
     user.is_active = False
     await s.user_db.commit()
     await s.user_db.refresh(user)
