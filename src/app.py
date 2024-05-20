@@ -1,14 +1,9 @@
-import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import APIRouter, FastAPI, HTTPException
 
-import uvloop
 from uvicorn import Config, Server
 
-from admin.views import admin_router
-from auth.views import auth_router
-from balance.views import balance_router
 from core.settings import settings
 from db.session import close_dbs, set_session_pool
 from error_handler import http_exception_handler
