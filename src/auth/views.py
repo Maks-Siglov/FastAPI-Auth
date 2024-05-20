@@ -170,9 +170,7 @@ async def refresh_access_token(
     "/deactivate/",
     response_model=None,
     status_code=status.HTTP_200_OK,
-    responses={
-        status.HTTP_200_OK: {"model": UserSchema}
-    },
+    responses={status.HTTP_200_OK: {"model": UserSchema}},
 )
 async def deactivate_user(
     user: User = Depends(get_current_user),

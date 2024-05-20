@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, Query
 from fastapi.security import HTTPBearer
 
+from starlette import status
+
 from admin.crud import filtered_users, sorted_users
 from auth.schemas.user import UsersResponseSchema
 from db.session import set_session_pool
@@ -15,7 +17,12 @@ admin_router = APIRouter(
 )
 
 
-@admin_router.get("/users/", response_model=UsersResponseSchema)
+@admin_router.get(
+    "/users/",
+    response_model=UsersResponseSchema,
+    status_code=status.HTTP_200_OK,
+    responses={status.HTTP_200_OK: {"model": UsersResponseSchema}},
+)
 async def get_users(
     id: int = Query(None, description="User ID"),
     email: str = Query(None, description="User Email"),
@@ -25,7 +32,12 @@ async def get_users(
     return {"users": users}
 
 
-@admin_router.get("/sort-users/", response_model=UsersResponseSchema)
+@admin_router.get(
+    "/sort-users/",
+    response_model=UsersResponseSchema,
+    status_code=status.HTTP_200_OK,
+    responses={status.HTTP_200_OK: {"model": UsersResponseSchema}},
+)
 async def get_sorted_users(
     created_at: bool = Query(None, description="Created At"),
     is_active: bool = Query(None, description="User Active Status"),
