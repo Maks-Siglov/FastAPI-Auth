@@ -41,12 +41,6 @@ async def set_session_pool() -> None:
     )
 
 
-async def _create_connection() -> async_scoped_session[AsyncSession]:
-    current_pool = await get_async_pool(settings.db.db_url)
-    ses = async_scoped_session(current_pool.maker, scopefunc=current_task)
-    return ses
-
-
 async def get_engine(db_url: str = settings.db.db_url) -> AsyncEngine:
     current_pool = await get_async_pool(db_url)
     return current_pool.engine
@@ -89,6 +83,12 @@ def _create_async_sessionmaker(
     engine: AsyncEngine,
 ) -> async_sessionmaker:
     return async_sessionmaker(bind=engine, expire_on_commit=False, future=True)
+
+
+async def _create_connection() -> async_scoped_session[AsyncSession]:
+    current_pool = await get_async_pool(settings.db.db_url)
+    ses = async_scoped_session(current_pool.maker, scopefunc=current_task)
+    return ses
 
 
 async def handle_session():
