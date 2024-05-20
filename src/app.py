@@ -1,18 +1,19 @@
 import asyncio
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, APIRouter
 
 import uvloop
 from uvicorn import Config, Server
 
 from admin.views import admin_router
-from auth.views import router as auth_router
+from auth.views import auth_router
 from balance.views import balance_router
 from core.settings import settings
 from db.session import close_dbs, set_session_pool
 from error_handler import http_exception_handler
 from logger import logger_config
+from routes import api_router_v1
 
 
 @asynccontextmanager
@@ -29,9 +30,10 @@ def create_app() -> FastAPI:
 
     app = FastAPI(lifespan=lifespan)
 
-    app.include_router(auth_router)
-    app.include_router(admin_router)
-    app.include_router(balance_router)
+    main_api_router = APIRouter(prefix="/api")
+    main_api_router.include_router(api_router_v1)
+
+    app.include_router(main_api_router)
 
     app.add_exception_handler(HTTPException, http_exception_handler)
 

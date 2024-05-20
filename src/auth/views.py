@@ -40,14 +40,14 @@ from core.redis_config import get_redis_client
 from db.session import handle_session, s
 from models import User
 
-router = APIRouter(
+auth_router = APIRouter(
     prefix="/auth",
     tags=["auth"],
     dependencies=[Depends(http_bearer), Depends(handle_session)],
 )
 
 
-@router.post("/signup", response_model=UserSchema)
+@auth_router.post("/signup/", response_model=UserSchema)
 async def signup(
     payload: UserCreationSchema = OAuth2PasswordRequestForm,
 ) -> UserSchema:
@@ -64,7 +64,7 @@ async def signup(
     return await create_user(user_data=payload)
 
 
-@router.post("/login/", response_model=TokenSchema)
+@auth_router.post("/login/", response_model=TokenSchema)
 async def login(
     payload: UserLoginSchema = OAuth2PasswordRequestForm,
     redis_client: Redis = Depends(get_redis_client),
@@ -94,7 +94,7 @@ async def login(
     return TokenSchema(access_token=access_token, refresh_token=refresh_token)
 
 
-@router.post("/change-password/", response_model=UserSchema)
+@auth_router.post("/change-password/", response_model=UserSchema)
 async def change_password(
     payload: ChangePasswordSchema,
     user: User = Depends(get_current_user),
@@ -109,7 +109,7 @@ async def change_password(
     return UserSchema(**user.__dict__)
 
 
-@router.post("/logout/", response_model=RevokedAccessTokenSchema)
+@auth_router.post("/logout/", response_model=RevokedAccessTokenSchema)
 async def logout(
     payload: dict[str, Any] = Depends(get_token_payload),
 ) -> RevokedAccessTokenSchema:
@@ -117,7 +117,7 @@ async def logout(
     return RevokedAccessTokenSchema(access_token=revoked_token)
 
 
-@router.post("/refresh/", response_model=AccessTokenSchema)
+@auth_router.post("/refresh/", response_model=AccessTokenSchema)
 async def refresh_access_token(
     user: User = Depends(get_user_from_refresh_token),
 ) -> AccessTokenSchema:
@@ -125,14 +125,9 @@ async def refresh_access_token(
     return AccessTokenSchema(access_token=access_token)
 
 
-@router.post("/deactivate/")
+@auth_router.post("/deactivate/")
 async def deactivate_user(user: User = Depends(get_current_user)):
     user.is_active = False
     await s.user_db.commit()
     await s.user_db.refresh(user)
     return UserSchema(**user.__dict__)
-
-
-@router.get("/")
-async def protect_test(user: User = Depends(get_current_user)):
-    return {"message": f"Hi {user.email}"}
