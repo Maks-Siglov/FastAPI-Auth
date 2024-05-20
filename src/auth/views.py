@@ -162,7 +162,7 @@ async def logout(
 async def refresh_access_token(
     user: User = Depends(get_user_from_refresh_token),
 ) -> AccessTokenSchema:
-    access_token = create_access_token(user)
+    access_token, _ = create_access_token(user)
     return AccessTokenSchema(access_token=access_token)
 
 
