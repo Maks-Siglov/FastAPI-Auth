@@ -4,12 +4,15 @@ from starlette.testclient import TestClient
 from auth.schemas.token import TokenSchema
 
 
+API_V1 = "/api/v1"
+
+
 def test_signup(test_client: TestClient):
     signup_post_data = {
         "email": "new_user@gmail.com",
         "password": "Test_password22",
     }
-    response = test_client.post("/auth/signup/", json=signup_post_data)
+    response = test_client.post(f"{API_V1}/auth/signup/", json=signup_post_data)
     assert response.status_code == 200
 
 
@@ -26,7 +29,7 @@ INVALID_SIGNUP_DATA = [
 def test_invalid_signup(
     test_client: TestClient, login_data: dict[str, str], expected_code: int
 ):
-    response = test_client.post("/auth/signup/", json=login_data)
+    response = test_client.post(f"{API_V1}/auth/signup/", json=login_data)
     assert response.status_code == expected_code
 
 
@@ -35,7 +38,7 @@ def test_login(test_client: TestClient):
         "email": "test_email@gmail.com",
         "password": "Test_password22",
     }
-    response = test_client.post("/auth/login/", json=login_post_data)
+    response = test_client.post(f"{API_V1}/auth/login/", json=login_post_data)
 
     assert response.status_code == 200
 
@@ -51,7 +54,7 @@ def test_invalid_password_login(test_client: TestClient):
         "email": "test_email@gmail.com",
         "password": "Wrong_password22",
     }
-    response = test_client.post("/auth/login/", json=login_post_data)
+    response = test_client.post(f"{API_V1}/auth/login/", json=login_post_data)
 
     assert response.status_code == 401
     assert response.json()["detail"] == "Invalid user credentials"
@@ -62,7 +65,7 @@ def test_in_active_user_login(test_client: TestClient):
         "email": "test_in_active_user@gmail.com",
         "password": "Test_password22",
     }
-    response = test_client.post("/auth/login/", json=login_post_data)
+    response = test_client.post(f"{API_V1}/auth/login/", json=login_post_data)
 
     assert response.status_code == 401
     assert response.json()["detail"] == "User is not active"
