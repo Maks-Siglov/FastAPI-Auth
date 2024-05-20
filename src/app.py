@@ -24,8 +24,6 @@ async def lifespan(my_app: FastAPI):
 
 
 def create_app() -> FastAPI:
-    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
-
     logger_config()
 
     app = FastAPI(lifespan=lifespan)
