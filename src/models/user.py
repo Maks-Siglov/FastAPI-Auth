@@ -12,6 +12,8 @@ class User(Base):
     email: Mapped[str] = mapped_column(unique=True)
     password: Mapped[str] = mapped_column()
 
+    balance: Mapped[int] = mapped_column(default=0)
+
     is_active: Mapped[bool] = mapped_column(default=True)
 
     created_at: Mapped[datetime] = mapped_column(default=func.now())

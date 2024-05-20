@@ -29,7 +29,6 @@ async def get_token_payload(
 ) -> dict[str, Any]:
     if (payload := await redis.get(token)) is None:
         raise credential_exceptions
-
     return json.loads(payload)
 
 

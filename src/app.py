@@ -8,6 +8,7 @@ from uvicorn import Config, Server
 
 from admin.views import admin_router
 from auth.views import router as auth_router
+from balance.views import balance_router
 from core.settings import settings
 from db.session import close_dbs, set_session_pool
 from error_handler import http_exception_handler
@@ -30,6 +31,7 @@ def create_app() -> FastAPI:
 
     app.include_router(auth_router)
     app.include_router(admin_router)
+    app.include_router(balance_router)
 
     app.add_exception_handler(HTTPException, http_exception_handler)
 
