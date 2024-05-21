@@ -5,14 +5,14 @@ from starlette import status
 
 from admin.crud import filtered_users, sorted_users
 from auth.schemas.user import UsersResponseSchema
-from db.session import set_session_pool
+from db.session import handle_session
 
 http_bearer = HTTPBearer(auto_error=False)
 
 admin_router = APIRouter(
     prefix="/admin",
     tags=["admin"],
-    dependencies=[Depends(http_bearer), Depends(set_session_pool)],
+    dependencies=[Depends(http_bearer), Depends(handle_session)],
     # include_in_schema=False
 )
 

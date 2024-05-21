@@ -3,7 +3,6 @@ import asyncio
 from fastapi.testclient import TestClient
 
 import pytest
-import uvloop
 
 from auth.utils.password import hash_password
 from db.utils import (

@@ -41,12 +41,7 @@ async def set_session_pool() -> None:
     )
 
 
-async def get_engine(db_url: str = settings.db.db_url) -> AsyncEngine:
-    current_pool = await get_async_pool(db_url)
-    return current_pool.engine
-
-
-async def get_async_pool(db_url: str) -> EnginePool:
+async def get_async_pool(db_url: str = settings.db.db_url) -> EnginePool:
     current = session_pools.get(db_url)
     if current is None:
         engine = _create_async_engine(db_url)
@@ -116,6 +111,11 @@ async def pop_session() -> None:
         log.error(f"During session error occurred {str(e)}.Session ROLLBACK ")
     finally:
         await s.user_db.close()
+
+
+async def get_engine(db_url: str = settings.db.db_url) -> AsyncEngine:
+    current_pool = await get_async_pool(db_url)
+    return current_pool.engine
 
 
 class Session:

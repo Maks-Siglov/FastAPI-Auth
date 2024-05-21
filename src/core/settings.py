@@ -45,7 +45,9 @@ class DbSettings(BaseModel):
 
 class LogSettings(BaseModel):
     level: str = os.environ["LOGGER_LEVEL"]
-    ROOT_FORMATTER = "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
+    ROOT_FORMATTER: str = (
+        "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
+    )
 
 
 class RedisSettings(BaseModel):
