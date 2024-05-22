@@ -1,23 +1,15 @@
-from fastapi import APIRouter, Depends, Query
-from fastapi.security import HTTPBearer
+from fastapi import APIRouter, Query
 
 from starlette import status
 
 from admin.crud import filtered_users, sorted_users
 from auth.schemas.user import UsersResponseSchema
-from db.session import handle_session
-
-http_bearer = HTTPBearer(auto_error=False)
-
-admin_router = APIRouter(
-    prefix="/admin",
-    tags=["admin"],
-    dependencies=[Depends(http_bearer), Depends(handle_session)],
-    # include_in_schema=False
-)
 
 
-@admin_router.get(
+router = APIRouter(prefix="/admin", tags=["admin"])  # include_in_schema=False
+
+
+@router.get(
     "/users/",
     response_model=UsersResponseSchema,
     status_code=status.HTTP_200_OK,
@@ -32,7 +24,7 @@ async def get_users(
     return {"users": users}
 
 
-@admin_router.get(
+@router.get(
     "/sort-users/",
     response_model=UsersResponseSchema,
     status_code=status.HTTP_200_OK,

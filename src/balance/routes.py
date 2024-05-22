@@ -2,24 +2,20 @@ from fastapi import APIRouter, Depends
 
 from starlette import status
 
-from auth.dependencies import get_current_user, http_bearer
+from auth.dependencies import get_current_user
 from balance.dependencies import get_user_balance
 from balance.exceptions import (
     insufficient_balance_error,
     negative_balance_error,
 )
 from balance.schemas import AmountSchema, UserBalanceSchema
-from db.session import handle_session, s
+from db.session import s
 from models import User
 
-balance_router = APIRouter(
-    prefix="/balance",
-    tags=["balance"],
-    dependencies=[Depends(http_bearer), Depends(handle_session)],
-)
+router = APIRouter(prefix="/balance", tags=["balance"])
 
 
-@balance_router.get(
+@router.get(
     "/get/",
     response_model=None,
     description="Get user's balance",
@@ -38,7 +34,7 @@ def get_balance(
     return UserBalanceSchema(user_id=user.id, balance=balance)
 
 
-@balance_router.post(
+@router.post(
     "/deposit/",
     response_model=None,
     description="Deposit to the user's balance",
@@ -57,7 +53,7 @@ async def deposit_balance(
     return UserBalanceSchema(user_id=user.id, balance=user.balance)
 
 
-@balance_router.post(
+@router.post(
     "/withdraw/",
     response_model=None,
     description="Withdraw from the user's balance",

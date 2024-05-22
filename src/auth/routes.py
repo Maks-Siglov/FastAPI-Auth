@@ -13,7 +13,6 @@ from auth.dependencies import (
     get_current_user,
     get_token_payload,
     get_user_from_refresh_token,
-    http_bearer,
 )
 from auth.exceptions import (
     credential_exceptions,
@@ -38,17 +37,13 @@ from auth.utils.my_jwt import (
 )
 from auth.utils.password import hash_password, verify_password
 from core.redis_config import get_redis_client
-from db.session import handle_session, s
+from db.session import s
 from models import User
 
-auth_router = APIRouter(
-    prefix="/auth",
-    tags=["auth"],
-    dependencies=[Depends(http_bearer), Depends(handle_session)],
-)
+router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@auth_router.post(
+@router.post(
     "/signup/",
     response_model=None,
     status_code=status.HTTP_201_CREATED,
@@ -75,7 +70,7 @@ async def signup(
     return await create_user(user_data=payload)
 
 
-@auth_router.post(
+@router.post(
     "/login/",
     response_model=None,
     status_code=status.HTTP_200_OK,
@@ -115,7 +110,7 @@ async def login(
     return TokenSchema(access_token=access_token, refresh_token=refresh_token)
 
 
-@auth_router.post(
+@router.post(
     "/change-password/",
     response_model=None,
     status_code=status.HTTP_200_OK,
@@ -140,7 +135,7 @@ async def change_password(
     return UserSchema(**user.__dict__)
 
 
-@auth_router.post(
+@router.post(
     "/logout/",
     response_model=None,
     status_code=status.HTTP_200_OK,
@@ -153,7 +148,7 @@ async def logout(
     return RevokedAccessTokenSchema(access_token=revoked_token)
 
 
-@auth_router.post(
+@router.post(
     "/refresh/",
     response_model=None,
     status_code=status.HTTP_201_CREATED,
@@ -166,7 +161,7 @@ async def refresh_access_token(
     return AccessTokenSchema(access_token=access_token)
 
 
-@auth_router.post(
+@router.post(
     "/deactivate/",
     response_model=None,
     status_code=status.HTTP_200_OK,

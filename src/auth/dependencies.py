@@ -2,7 +2,7 @@ import json
 from typing import Any
 
 from fastapi import Depends
-from fastapi.security import HTTPBearer, OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer
 
 from redis.asyncio import Redis
 
@@ -19,7 +19,6 @@ from core.redis_config import get_redis_client
 from core.settings import jwt_settings
 from models import User
 
-http_bearer = HTTPBearer(auto_error=False)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login/")
 
 

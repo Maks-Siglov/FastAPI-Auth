@@ -59,7 +59,9 @@ class LogSettings(BaseSettings):
 class RedisSettings(BaseSettings):
     host: str = os.environ["REDIS_HOST"]
     port: int = int(os.environ["REDIS_PORT"])
-    url: str = f"redis://{host}:{port}"
+
+    def get_redis_url(self) -> str:
+        return f"redis://{self.host}:{self.port}"
 
 
 class JWTSettings(BaseSettings):
