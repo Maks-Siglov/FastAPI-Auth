@@ -3,7 +3,7 @@ from typing import Any
 
 import jwt
 
-from src.core.settings import jwt_settings, security_settings
+from src.settings import jwt_settings, security_settings
 from src.db.models import User
 
 

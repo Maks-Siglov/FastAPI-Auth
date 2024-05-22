@@ -6,7 +6,7 @@ import pytest
 
 from api.v1.auth.utils.password import hash_password
 from src.app import app
-from src.core.settings import db_settings
+from src.settings import db_settings
 from src.db.models import User
 from src.db.session import (
     close_dbs,

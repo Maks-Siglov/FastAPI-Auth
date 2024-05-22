@@ -76,9 +76,9 @@ class SecuritySettings(BaseSettings):
     SECRET_KEY: str = os.environ["SECRET_KEY"]
 
 
-app_settings: AppSettings = AppSettings()
-db_settings: DbSettings = DbSettings()
-jwt_settings: JWTSettings = JWTSettings()
-security_settings: SecuritySettings = SecuritySettings()
-log_settings: LogSettings = LogSettings()
-redis_settings: RedisSettings = RedisSettings()
+app_settings = AppSettings()
+db_settings = DbSettings()
+jwt_settings = JWTSettings()
+security_settings = SecuritySettings()
+log_settings = LogSettings()
+redis_settings = RedisSettings()

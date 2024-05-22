@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator, ConfigDict
 from pydantic_core.core_schema import ValidationInfo
 
 from api.v1.auth.utils.password import validate_password
@@ -15,6 +15,8 @@ class UserLoginSchema(BaseUserSchema):
 
 
 class UserSchema(BaseUserSchema):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     is_active: bool = Field(
         default=True, description="Whether the user is active."

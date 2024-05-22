@@ -5,7 +5,7 @@ from fastapi import APIRouter, FastAPI, HTTPException
 
 from uvicorn import Config, Server
 
-from src.core.settings import app_settings
+from src.settings import app_settings
 from src.db.session import close_dbs
 from src.error_handler import http_exception_handler
 from src.logger import logger_config
