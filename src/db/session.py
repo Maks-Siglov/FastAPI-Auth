@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
-from core.settings import settings
+from core.settings import db_settings
 
 log = logging.getLogger(__name__)
 
@@ -34,7 +34,7 @@ class SessionException(Exception):
 
 
 async def set_session_pool() -> None:
-    current_pool = await get_async_pool(settings.db.get_async_db_url())
+    current_pool = await get_async_pool(db_settings.get_async_db_url())
     s.user_db = current_pool.maker()
     await s.user_db.connection(
         execution_options={"isolation_level": "AUTOCOMMIT"}
@@ -42,7 +42,7 @@ async def set_session_pool() -> None:
 
 
 async def get_async_pool(
-    db_url: str = settings.db.get_async_db_url(),
+    db_url: str = db_settings.get_async_db_url(),
 ) -> EnginePool:
     current = session_pools.get(db_url)
     if current is None:
@@ -61,7 +61,7 @@ def _create_async_engine(
     return create_async_engine(
         url=url,
         isolation_level=isolation_level,
-        echo=settings.db.echo,
+        echo=db_settings.echo,
         future=True,
     )
 
@@ -83,7 +83,7 @@ def _create_async_sessionmaker(
 
 
 async def _create_connection() -> async_scoped_session[AsyncSession]:
-    current_pool = await get_async_pool(settings.db.get_async_db_url())
+    current_pool = await get_async_pool(db_settings.get_async_db_url())
     ses = async_scoped_session(current_pool.maker, scopefunc=current_task)
     return ses
 
@@ -116,7 +116,7 @@ async def pop_session() -> None:
 
 
 async def get_engine(
-    db_url: str = settings.db.get_async_db_url(),
+    db_url: str = db_settings.get_async_db_url(),
 ) -> AsyncEngine:
     current_pool = await get_async_pool(db_url)
     return current_pool.engine

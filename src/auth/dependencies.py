@@ -16,7 +16,7 @@ from auth.exceptions import (
 )
 from auth.utils.my_jwt import validate_token_type
 from core.redis_config import get_redis_client
-from core.settings import settings
+from core.settings import jwt_settings
 from models import User
 
 http_bearer = HTTPBearer(auto_error=False)
@@ -51,6 +51,6 @@ async def get_current_user(
 async def get_user_from_refresh_token(
     payload: dict[str, Any] = Depends(get_token_payload),
 ) -> User:
-    if not validate_token_type(payload, settings.jwt.REFRESH_TOKEN_TYPE):
+    if not validate_token_type(payload, jwt_settings.REFRESH_TOKEN_TYPE):
         raise invalid_token_type_exception
     return await get_user_by_email(email=payload.get("sub"))

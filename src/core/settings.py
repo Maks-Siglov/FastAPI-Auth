@@ -2,7 +2,6 @@ import os
 from pathlib import Path
 
 from dotenv import load_dotenv
-from pydantic import BaseModel
 from pydantic_settings import BaseSettings
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -11,13 +10,13 @@ dotenv_path = os.path.join(BASE_DIR, "..", ".env.local")
 load_dotenv(dotenv_path)
 
 
-class AppSettings(BaseModel):
+class AppSettings(BaseSettings):
     host: str = os.environ["APP_HOST"]
     port: int = int(os.environ["APP_PORT"])
     reload: bool = bool(os.environ["APP_RELOAD"])
 
 
-class DbSettings(BaseModel):
+class DbSettings(BaseSettings):
     db_name: str = os.environ["DB_NAME"]
     db_user: str = os.environ["DB_USER"]
     db_password: str = os.environ["DB_PASSWORD"]
@@ -50,38 +49,34 @@ class DbSettings(BaseModel):
         )
 
 
-class LogSettings(BaseModel):
+class LogSettings(BaseSettings):
     level: str = os.environ["LOGGER_LEVEL"]
     ROOT_FORMATTER: str = (
         "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
     )
 
 
-class RedisSettings(BaseModel):
+class RedisSettings(BaseSettings):
     host: str = os.environ["REDIS_HOST"]
-    port: int = os.environ["REDIS_PORT"]
+    port: int = int(os.environ["REDIS_PORT"])
     url: str = f"redis://{host}:{port}"
 
 
-class JWTSettings(BaseModel):
+class JWTSettings(BaseSettings):
     ACCESS_TOKEN_TYPE: str = "Access"
     REFRESH_TOKEN_TYPE: str = "Refresh"
     ACCESS_TOKEN_EXPIRE_SECONDS: int = 15 * 60
     REFRESH_TOKEN_EXPIRE_SECONDS: int = 30 * 24 * 30 * 60
 
 
-class SecuritySettings(BaseModel):
+class SecuritySettings(BaseSettings):
     ALGORITHM: str = os.environ["SECURITY_ALGORITHM"]
     SECRET_KEY: str = os.environ["SECRET_KEY"]
 
 
-class Settings(BaseSettings):
-    app: AppSettings = AppSettings()
-    db: DbSettings = DbSettings()
-    jwt: JWTSettings = JWTSettings()
-    security: SecuritySettings = SecuritySettings()
-    log: LogSettings = LogSettings()
-    redis: RedisSettings = RedisSettings()
-
-
-settings = Settings()
+app_settings: AppSettings = AppSettings()
+db_settings: DbSettings = DbSettings()
+jwt_settings: JWTSettings = JWTSettings()
+security_settings: SecuritySettings = SecuritySettings()
+log_settings: LogSettings = LogSettings()
+redis_settings: RedisSettings = RedisSettings()

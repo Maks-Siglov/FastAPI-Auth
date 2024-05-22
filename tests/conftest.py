@@ -12,7 +12,7 @@ from db.utils import (
     drop_db,
     drop_tables
 )
-from src.core.settings import settings
+from src.core.settings import db_settings
 from src.db.session import (
     close_dbs,
     get_engine,
@@ -32,7 +32,7 @@ def loop():
 
 @pytest.fixture(scope="session", autouse=True)
 async def connect_db(loop):
-    await create_db(settings.db.get_postgres_db_url(), settings.db.db_name)
+    await create_db(db_settings.get_postgres_db_url(), db_settings.db_name)
     bind = await get_engine()
     await create_tables(bind)
 
@@ -40,7 +40,7 @@ async def connect_db(loop):
 
     await drop_tables(bind)
     await close_dbs()
-    await drop_db(settings.db.get_postgres_db_url(), settings.db.db_name)
+    await drop_db(db_settings.get_postgres_db_url(), db_settings.db_name)
 
 
 @pytest.fixture(scope="session")
