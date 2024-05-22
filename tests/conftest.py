@@ -4,23 +4,18 @@ from fastapi.testclient import TestClient
 
 import pytest
 
+from api.v1.auth.utils.password import hash_password
 from src.app import app
-from src.auth.utils.password import hash_password
-from src.db.utils import (
-    create_db,
-    create_tables,
-    drop_db,
-    drop_tables
-)
 from src.core.settings import db_settings
+from src.db.models import User
 from src.db.session import (
     close_dbs,
     get_engine,
     pop_session,
     s,
-    set_session_pool
+    set_session_pool,
 )
-from src.models import User
+from src.db.utils import create_db, create_tables, drop_db, drop_tables
 
 
 @pytest.fixture(scope="session", autouse=True)

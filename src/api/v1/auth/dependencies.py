@@ -6,18 +6,18 @@ from fastapi.security import OAuth2PasswordBearer
 
 from redis.asyncio import Redis
 
-from src.auth.crud import get_user_by_email
-from src.auth.exceptions import (
+from src.api.v1.auth.crud import get_user_by_email
+from src.api.v1.auth.exceptions import (
     credential_exceptions,
     invalid_token_credential_exception,
     invalid_token_exception,
     invalid_token_type_exception,
     revoked_token_error,
 )
-from src.auth.utils.my_jwt import validate_token_type
+from src.api.v1.auth.utils.my_jwt import validate_token_type
 from src.core.redis_config import get_redis_client
 from src.core.settings import jwt_settings
-from src.models import User
+from src.db.models import User
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login/")
 

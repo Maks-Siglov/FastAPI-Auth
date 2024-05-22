@@ -2,6 +2,7 @@ import logging
 from asyncio import current_task
 from contextvars import ContextVar
 from dataclasses import dataclass
+from typing import AsyncGenerator
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import (
@@ -88,7 +89,7 @@ async def _create_connection() -> async_scoped_session[AsyncSession]:
     return ses
 
 
-async def handle_session():
+async def handle_session() -> AsyncGenerator[None, None]:
     AsyncScopedSession = await _create_connection()
     s.user_db = AsyncScopedSession()
     try:

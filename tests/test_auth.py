@@ -1,8 +1,7 @@
 import pytest
 from starlette.testclient import TestClient
 
-from src.auth.schemas.token import TokenSchema
-
+from src.api.v1.auth.schemas.token import TokenSchema
 
 API_V1 = "/api/v1"
 
@@ -12,7 +11,9 @@ def test_signup(test_client: TestClient):
         "email": "new_user@gmail.com",
         "password": "Test_password22",
     }
-    response = test_client.post(f"{API_V1}/auth/signup/", json=signup_post_data)
+    response = test_client.post(
+        f"{API_V1}/auth/signup/", json=signup_post_data
+    )
     assert response.status_code == 201
 
 

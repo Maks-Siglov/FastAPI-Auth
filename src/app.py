@@ -1,24 +1,24 @@
 from contextlib import asynccontextmanager
+from typing import AsyncGenerator
 
 from fastapi import APIRouter, FastAPI, HTTPException
 
 from uvicorn import Config, Server
 
 from src.core.settings import app_settings
-from src.db.session import close_dbs, set_session_pool
+from src.db.session import close_dbs
 from src.error_handler import http_exception_handler
 from src.logger import logger_config
 from src.routes import api_router_v1
 
+logger_config()
+
 
 @asynccontextmanager
-async def lifespan(my_app: FastAPI):
-    await set_session_pool()
+async def lifespan(my_app: FastAPI) -> AsyncGenerator[None, None]:
     yield
     await close_dbs()
 
-
-logger_config()
 
 app = FastAPI(lifespan=lifespan)
 
