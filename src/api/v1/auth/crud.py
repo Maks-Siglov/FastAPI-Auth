@@ -10,7 +10,7 @@ async def create_user(user_data: UserCreationSchema) -> UserSchema:
     s.user_db.add(db_user)
     await s.user_db.commit()
     await s.user_db.refresh(db_user)
-    return UserSchema(**db_user.__dict__)
+    return UserSchema.model_validate(db_user)
 
 
 async def get_user_by_email(email: str) -> User | None:

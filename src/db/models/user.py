@@ -16,9 +16,14 @@ class User(Base):
 
     is_active: Mapped[bool] = mapped_column(default=True)
 
-    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(
+        default=func.now(), server_default=func.now()
+    )
     updated_at: Mapped[datetime] = mapped_column(
-        server_default=func.now(), server_onupdate=func.now()
+        default=func.now(),
+        onupdate=func.now(),
+        server_default=func.now(),
+        server_onupdate=func.now(),
     )
 
     def __str__(self) -> str:

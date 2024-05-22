@@ -64,7 +64,8 @@ async def signup(
         user.is_active = True
         await s.user_db.commit()
         await s.user_db.refresh(user)
-        return UserSchema(**user.__dict__)
+
+        return UserSchema.model_validate(user)
 
     payload.password = hash_password(payload.password)
     return await create_user(user_data=payload)
@@ -132,7 +133,7 @@ async def change_password(
     user.password = new_password
     await s.user_db.commit()
     await s.user_db.refresh(user)
-    return UserSchema(**user.__dict__)
+    return UserSchema.model_validate(user)
 
 
 @router.post(
@@ -173,4 +174,4 @@ async def deactivate_user(
     user.is_active = False
     await s.user_db.commit()
     await s.user_db.refresh(user)
-    return UserSchema(**user.__dict__)
+    return UserSchema.model_validate(user)
