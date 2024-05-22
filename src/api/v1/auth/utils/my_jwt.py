@@ -59,7 +59,7 @@ def revoke_jwt(payload: dict[str, Any]) -> str:
     )
 
 
-def decode_jwt(token: str):
+def decode_jwt(token: str) -> dict[str, Any]:
     return jwt.decode(
         jwt=token,
         algorithms=[security_settings.ALGORITHM],

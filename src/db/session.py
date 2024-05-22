@@ -109,9 +109,9 @@ async def close_dbs() -> None:
 async def pop_session() -> None:
     try:
         await s.user_db.commit()
-    except Exception as e:
+    except Exception as exc:
+        log.error("During session error occurred %s.Session ROLLBACK", exc)
         await s.user_db.rollback()
-        log.error(f"During session error occurred {str(e)}.Session ROLLBACK ")
     finally:
         await s.user_db.close()
 

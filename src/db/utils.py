@@ -14,10 +14,10 @@ async def create_db(postgres_url: str, db_name: str) -> None:
     async with engine.connect() as connection:
         query = f"CREATE DATABASE {db_name};"
         try:
+            log.info("Created database %s", db_name)
             await connection.execute(text(query))
-            log.info(f"Created database {db_name}")
         except ProgrammingError:
-            log.error(f"Database {db_name} already exists")
+            log.error("Database %s already exists", db_name)
 
 
 async def drop_db(postgres_url: str, db_name: str) -> None:
@@ -27,16 +27,16 @@ async def drop_db(postgres_url: str, db_name: str) -> None:
     async with engine.begin() as connect:
         query = f"DROP DATABASE IF EXISTS {db_name} WITH(FORCE);"
         await connect.execute(text(query))
-        log.info(f"Dropped database {db_name}")
+        log.info("Dropped database %s", db_name)
 
 
 async def create_tables(engine: AsyncEngine) -> None:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-        log.info(f"Created tables for {engine.name}")
+        log.info("Created tables for %s", engine.name)
 
 
 async def drop_tables(engine: AsyncEngine) -> None:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
-        log.info(f"Dropped tables for {engine.name}")
+        log.info("Dropped tables for %s", engine.name)
