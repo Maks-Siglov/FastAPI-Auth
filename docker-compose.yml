@@ -11,9 +11,7 @@ services:
     env_file:
       - .env.docker
     volumes:
-      - ./src:/src
-      - ./migrations:/migrations
-      - ./alembic.ini:/alembic.ini
+      - .:/app
     command: [
       "sh", "-c",
       "cd .. && alembic upgrade head && cd src && python app.py"

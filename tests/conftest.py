@@ -4,6 +4,7 @@ from fastapi.testclient import TestClient
 
 import pytest
 
+from app import app
 from auth.utils.password import hash_password
 from db.utils import (
     create_db,
@@ -11,7 +12,6 @@ from db.utils import (
     drop_db,
     drop_tables
 )
-from src.app import create_app
 from src.core.settings import settings
 from src.db.session import (
     close_dbs,
@@ -32,7 +32,7 @@ def loop():
 
 @pytest.fixture(scope="session", autouse=True)
 async def connect_db(loop):
-    await create_db(settings.db.postgres_url, settings.db.db_name)
+    await create_db(settings.db.get_postgres_db_url(), settings.db.db_name)
     bind = await get_engine()
     await create_tables(bind)
 
@@ -40,12 +40,11 @@ async def connect_db(loop):
 
     await drop_tables(bind)
     await close_dbs()
-    await drop_db(settings.db.postgres_url, settings.db.db_name)
+    await drop_db(settings.db.get_postgres_db_url(), settings.db.db_name)
 
 
 @pytest.fixture(scope="session")
 def test_client() -> TestClient:
-    app = create_app()
     return TestClient(app)
 
 

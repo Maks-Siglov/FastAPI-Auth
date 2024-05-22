@@ -29,18 +29,25 @@ class DbSettings(BaseModel):
 
     postgres_db: str = os.environ["BASE_POSTGRES_DB"]
 
-    base_url: str = (
-        f"{async_db_engine}://{db_user}:{db_password}@{db_host}:{db_port}"
-    )
-    db_url: str = f"{base_url}/{db_name}"
-
-    postgres_url: str = f"{base_url}/{postgres_db}"
-
-    sync_db_url: str = (
-        f"{sync_db_engine}://{db_user}:{db_password}@"
-        f"{db_host}:{db_port}/{db_name}"
-    )
     echo: bool = bool(os.environ["DB_ECHO"])
+
+    def get_async_db_url(self) -> str:
+        return (
+            f"{self.async_db_engine}://{self.db_user}:{self.db_password}@"
+            f"{self.db_host}:{self.db_port}/{self.db_name}"
+        )
+
+    def get_sync_db_url(self) -> str:
+        return (
+            f"{self.sync_db_engine}://{self.db_user}:{self.db_password}@"
+            f"{self.db_host}:{self.db_port}/{self.db_name}"
+        )
+
+    def get_postgres_db_url(self) -> str:
+        return (
+            f"{self.async_db_engine}://{self.db_user}:{self.db_password}@"
+            f"{self.db_host}:{self.db_port}/{self.postgres_db}"
+        )
 
 
 class LogSettings(BaseModel):

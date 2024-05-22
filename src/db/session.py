@@ -34,14 +34,16 @@ class SessionException(Exception):
 
 
 async def set_session_pool() -> None:
-    current_pool = await get_async_pool(settings.db.db_url)
+    current_pool = await get_async_pool(settings.db.get_async_db_url())
     s.user_db = current_pool.maker()
     await s.user_db.connection(
         execution_options={"isolation_level": "AUTOCOMMIT"}
     )
 
 
-async def get_async_pool(db_url: str = settings.db.db_url) -> EnginePool:
+async def get_async_pool(
+    db_url: str = settings.db.get_async_db_url(),
+) -> EnginePool:
     current = session_pools.get(db_url)
     if current is None:
         engine = _create_async_engine(db_url)
@@ -81,7 +83,7 @@ def _create_async_sessionmaker(
 
 
 async def _create_connection() -> async_scoped_session[AsyncSession]:
-    current_pool = await get_async_pool(settings.db.db_url)
+    current_pool = await get_async_pool(settings.db.get_async_db_url())
     ses = async_scoped_session(current_pool.maker, scopefunc=current_task)
     return ses
 
@@ -113,7 +115,9 @@ async def pop_session() -> None:
         await s.user_db.close()
 
 
-async def get_engine(db_url: str = settings.db.db_url) -> AsyncEngine:
+async def get_engine(
+    db_url: str = settings.db.get_async_db_url(),
+) -> AsyncEngine:
     current_pool = await get_async_pool(db_url)
     return current_pool.engine
 
