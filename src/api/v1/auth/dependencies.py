@@ -7,7 +7,7 @@ from fastapi.security import OAuth2PasswordBearer
 from redis.asyncio import Redis
 
 from src.api.v1.auth.crud import get_user_by_email
-from exceptions import (
+from src.exceptions import (
     credential_exceptions,
     invalid_token_credential_exception,
     invalid_token_exception,
