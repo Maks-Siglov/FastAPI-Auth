@@ -2,15 +2,15 @@ from fastapi import APIRouter, Depends
 
 from starlette import status
 
-from auth.dependencies import get_current_user
-from balance.dependencies import get_user_balance
-from balance.exceptions import (
+from src.auth.dependencies import get_current_user
+from src.balance.dependencies import get_user_balance
+from src.balance.exceptions import (
     insufficient_balance_error,
     negative_balance_error,
 )
-from balance.schemas import AmountSchema, UserBalanceSchema
-from db.session import s
-from models import User
+from src.balance.schemas import AmountSchema, UserBalanceSchema
+from src.db.session import s
+from src.models import User
 
 router = APIRouter(prefix="/balance", tags=["balance"])
 

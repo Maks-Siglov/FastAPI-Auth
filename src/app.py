@@ -4,11 +4,11 @@ from fastapi import APIRouter, FastAPI, HTTPException
 
 from uvicorn import Config, Server
 
-from core.settings import app_settings
-from db.session import close_dbs, set_session_pool
-from error_handler import http_exception_handler
-from logger import logger_config
-from routes import api_router_v1
+from src.core.settings import app_settings
+from src.db.session import close_dbs, set_session_pool
+from src.error_handler import http_exception_handler
+from src.logger import logger_config
+from src.routes import api_router_v1
 
 
 @asynccontextmanager

@@ -3,7 +3,7 @@ from datetime import datetime
 from pydantic import BaseModel, EmailStr, Field, field_validator
 from pydantic_core.core_schema import ValidationInfo
 
-from auth.utils.password import validate_password
+from src.auth.utils.password import validate_password
 
 
 class BaseUserSchema(BaseModel):

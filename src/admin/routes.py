@@ -2,8 +2,8 @@ from fastapi import APIRouter, Query
 
 from starlette import status
 
-from admin.crud import filtered_users, sorted_users
-from auth.schemas.user import UsersResponseSchema
+from src.admin.crud import filtered_users, sorted_users
+from src.auth.schemas.user import UsersResponseSchema
 
 
 router = APIRouter(prefix="/admin", tags=["admin"])  # include_in_schema=False

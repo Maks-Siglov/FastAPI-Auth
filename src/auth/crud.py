@@ -1,8 +1,8 @@
 from sqlalchemy import select
 
-from auth.schemas.user import UserCreationSchema, UserSchema
-from db.session import s
-from models import User
+from src.auth.schemas.user import UserCreationSchema, UserSchema
+from src.db.session import s
+from src.models import User
 
 
 async def create_user(user_data: UserCreationSchema) -> UserSchema:

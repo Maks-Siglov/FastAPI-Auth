@@ -4,9 +4,9 @@ from fastapi.testclient import TestClient
 
 import pytest
 
-from app import app
-from auth.utils.password import hash_password
-from db.utils import (
+from src.app import app
+from src.auth.utils.password import hash_password
+from src.db.utils import (
     create_db,
     create_tables,
     drop_db,

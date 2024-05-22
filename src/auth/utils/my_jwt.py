@@ -3,8 +3,8 @@ from typing import Any
 
 import jwt
 
-from core.settings import jwt_settings, security_settings
-from models import User
+from src.core.settings import jwt_settings, security_settings
+from src.models import User
 
 
 def create_jwt(

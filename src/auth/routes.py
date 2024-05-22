@@ -8,37 +8,37 @@ from fastapi.security import OAuth2PasswordRequestForm
 from redis.asyncio import Redis
 from starlette import status
 
-from auth.crud import create_user, get_user_by_email
-from auth.dependencies import (
+from src.auth.crud import create_user, get_user_by_email
+from src.auth.dependencies import (
     get_current_user,
     get_token_payload,
     get_user_from_refresh_token,
 )
-from auth.exceptions import (
+from src.auth.exceptions import (
     credential_exceptions,
     not_active_user_exception,
     repeat_email_exception,
 )
-from auth.schemas.token import (
+from src.auth.schemas.token import (
     AccessTokenSchema,
     RevokedAccessTokenSchema,
     TokenSchema,
 )
-from auth.schemas.user import (
+from src.auth.schemas.user import (
     ChangePasswordSchema,
     UserCreationSchema,
     UserLoginSchema,
     UserSchema,
 )
-from auth.utils.my_jwt import (
+from src.auth.utils.my_jwt import (
     create_access_token,
     create_refresh_token,
     revoke_jwt,
 )
-from auth.utils.password import hash_password, verify_password
-from core.redis_config import get_redis_client
-from db.session import s
-from models import User
+from src.auth.utils.password import hash_password, verify_password
+from src.core.redis_config import get_redis_client
+from src.db.session import s
+from src.models import User
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 

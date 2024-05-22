@@ -1,7 +1,7 @@
 from sqlalchemy import Result, Row, select
 
-from db.session import s
-from models import User
+from src.db.session import s
+from src.models import User
 
 
 async def filtered_users(
