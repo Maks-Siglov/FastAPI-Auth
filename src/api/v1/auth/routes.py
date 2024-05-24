@@ -3,22 +3,15 @@ import time
 from typing import Any
 
 from fastapi import APIRouter, Depends
-from fastapi.security import OAuth2PasswordRequestForm
 
 from redis.asyncio import Redis
 from starlette import status
 
-from src.api.v1.auth.utils.password import hash_password, verify_password
 from src.api.v1.auth.crud import create_user, get_user_by_email
 from src.api.v1.auth.dependencies import (
     get_current_user,
     get_token_payload,
     get_user_from_refresh_token,
-)
-from src.exceptions import (
-    credential_exceptions,
-    not_active_user_exception,
-    repeat_email_exception,
 )
 from src.api.v1.auth.schemas.token import (
     AccessTokenSchema,
@@ -36,9 +29,15 @@ from src.api.v1.auth.utils.my_jwt import (
     create_refresh_token,
     revoke_jwt,
 )
-from src.redis_config import get_redis_client
+from src.api.v1.auth.utils.password import hash_password, verify_password
 from src.db.models import User
 from src.db.session import s
+from src.exceptions import (
+    credential_exceptions,
+    not_active_user_exception,
+    repeat_email_exception,
+)
+from src.redis_config import get_redis_client
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -54,9 +53,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
         },
     },
 )
-async def signup(
-    payload: UserCreationSchema = OAuth2PasswordRequestForm,
-) -> UserSchema:
+async def signup(payload: UserCreationSchema) -> UserSchema:
     if (user := await get_user_by_email(email=payload.email)) is not None:
         if user.is_active:
             raise repeat_email_exception
@@ -83,7 +80,7 @@ async def signup(
     },
 )
 async def login(
-    payload: UserLoginSchema = OAuth2PasswordRequestForm,
+    payload: UserLoginSchema,
     redis_client: Redis = Depends(get_redis_client),
 ) -> TokenSchema:
     user = await get_user_by_email(email=payload.email)

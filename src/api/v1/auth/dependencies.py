@@ -7,6 +7,8 @@ from fastapi.security import OAuth2PasswordBearer
 from redis.asyncio import Redis
 
 from src.api.v1.auth.crud import get_user_by_email
+from src.api.v1.auth.utils.my_jwt import validate_token_type
+from src.db.models import User
 from src.exceptions import (
     credential_exceptions,
     invalid_token_credential_exception,
@@ -14,10 +16,8 @@ from src.exceptions import (
     invalid_token_type_exception,
     revoked_token_error,
 )
-from src.api.v1.auth.utils.my_jwt import validate_token_type
 from src.redis_config import get_redis_client
 from src.settings import jwt_settings
-from src.db.models import User
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login/")
 
@@ -52,8 +52,9 @@ async def get_user_from_refresh_token(
 ) -> User | None:
     if not validate_token_type(payload, jwt_settings.REFRESH_TOKEN_TYPE):
         raise invalid_token_type_exception
-    if (user := await get_user_by_email(email=payload.get("sub"))) is None:
+    if (email := payload.get("sub")) is None:
+        raise invalid_token_exception
+    if (user := await get_user_by_email(email)) is None:
         raise invalid_token_credential_exception
 
     return user
-

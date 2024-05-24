@@ -1,10 +1,10 @@
-import time
+from datetime import datetime
 from typing import Any
 
 import jwt
 
-from src.settings import jwt_settings, security_settings
 from src.db.models import User
+from src.settings import jwt_settings, security_settings
 
 
 def create_jwt(
@@ -13,9 +13,9 @@ def create_jwt(
     expire_time_seconds: int,
 ) -> tuple[str, dict[str, Any]]:
     jwt_payload = {"type": token_type}
-    now = int(time.time())
-    jwt_payload["iat"] = now
-    jwt_payload["exp"] = now + expire_time_seconds
+    now = int(datetime.utcnow().timestamp())
+    jwt_payload["iat"] = str(now)
+    jwt_payload["exp"] = str(now + expire_time_seconds)
 
     jwt_payload.update(token_data)
     token = jwt.encode(
