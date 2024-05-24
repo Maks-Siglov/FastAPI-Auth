@@ -1,37 +1,29 @@
-from sqlalchemy import Result, Row, select
+from sqlalchemy import desc, select
 
 from src.db.models import User
 from src.db.session import s
 
 
 async def filtered_users(
-    id: int | None, email: str | None, is_active: bool | None
-) -> Result[Row[User]]:
+    user_id: int | None,
+    email: str | None,
+    is_active: bool | None,
+    order_by: str | None,
+    order_desc: bool | None,
+) -> list[User]:
     query = select(User)
-    if id is not None:
-        query = query.where(User.id == id)
+    if user_id is not None:
+        query = query.filter(User.id == user_id)
     elif email is not None:
-        query = query.where(User.email == email)
+        query = query.filter(User.email == email)
     if is_active is not None:
-        query = query.where(User.is_active == is_active)
+        query = query.filter(User.is_active == is_active)
 
-    return await s.user_db.execute(query)
+    if order_by is not None and order_by in ["created_at", "is_active"]:
+        if order_desc:
+            query = query.order_by(desc(getattr(User, order_by)))
+        else:
+            query = query.order_by(getattr(User, order_by))
 
-
-async def sorted_users(
-    is_active: bool | None, created_at: bool | None, desc: bool
-) -> Result[Row[User]]:
-    query = select(User)
-
-    if created_at is not None:
-        query = query.order_by(
-            User.created_at.desc() if desc else User.created_at
-        )
-    elif is_active is not None:
-        query = query.order_by(
-            User.is_active.desc() if desc else User.is_active
-        )
-    else:
-        query = query.order_by(User.id.desc() if desc else User.id)
-
-    return await s.user_db.execute(query)
+    result = await s.user_db.execute(query)
+    return result.scalars().all()

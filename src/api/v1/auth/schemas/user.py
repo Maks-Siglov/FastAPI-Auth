@@ -24,6 +24,8 @@ class UserSchema(BaseUserSchema):
 
 
 class UserResponseSchema(UserSchema):
+    model_config = ConfigDict(from_attributes=True)
+
     created_at: datetime = Field(description="The date the user was created.")
     updated_at: datetime = Field(
         description="The date the user was last updated."
@@ -31,7 +33,9 @@ class UserResponseSchema(UserSchema):
 
 
 class UsersResponseSchema(BaseModel):
-    users: list[UserResponseSchema]
+    model_config = ConfigDict(from_attributes=True)
+
+    users: list[UserResponseSchema] | list
 
 
 class UserCreationSchema(BaseUserSchema):
