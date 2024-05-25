@@ -40,3 +40,13 @@ async def drop_tables(engine: AsyncEngine) -> None:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         log.info("Dropped tables for %s", engine.name)
+
+
+def upgrade_database(db_url: str) -> None:
+    import alembic.command
+    import alembic.config
+
+    alembic_config = alembic.config.Config("alembic.ini")
+    alembic_config.set_main_option("sqlalchemy.url", db_url)
+    alembic.command.upgrade(alembic_config, "head")
+    log.info("Database %s upgrade with alembic complete", db_url)

@@ -12,9 +12,11 @@ services:
       - .env.docker
     volumes:
       - .:/app
+      - ./migrations:/migrations
+      - ./alembic.ini:/alembic.ini
     command: [
       "sh", "-c",
-      "cd .. && alembic upgrade head && cd src && python app.py"
+      "python -m src.cli --upgrade && uvicorn scr.app:app --host 0.0.0.0 --port 8000"
     ]
     depends_on:
       - db
@@ -35,7 +37,7 @@ services:
     volumes:
       - postgres-db-volume:/var/lib/postgresql/data
     ports:
-      - "127.0.0.1:5432:5432"
+      - "127.0.0.1:5433:5432"
     networks:
       - mynetwork
 
