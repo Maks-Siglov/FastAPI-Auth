@@ -32,7 +32,7 @@ from src.api.v1.auth.utils.my_jwt import (
 from src.api.v1.auth.utils.password import hash_password, verify_password
 from src.db.models import User
 from src.db.session import s
-from src.exceptions import (
+from src.api.exceptions import (
     credential_exceptions,
     not_active_user_exception,
     repeat_email_exception,

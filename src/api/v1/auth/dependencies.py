@@ -9,7 +9,7 @@ from redis.asyncio import Redis
 from src.api.v1.auth.crud import get_user_by_email
 from src.api.v1.auth.utils.my_jwt import validate_token_type
 from src.db.models import User
-from src.exceptions import (
+from src.api.exceptions import (
     credential_exceptions,
     invalid_token_credential_exception,
     invalid_token_exception,

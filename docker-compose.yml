@@ -11,12 +11,10 @@ services:
     env_file:
       - .env.docker
     volumes:
-      - .:/app
-      - ./migrations:/migrations
-      - ./alembic.ini:/alembic.ini
+        - .:/app
     command: [
       "sh", "-c",
-      "python -m src.cli --upgrade && uvicorn scr.app:app --host 0.0.0.0 --port 8000"
+      "python -m src.cli --upgrade && uvicorn src.app:app --host 0.0.0.0 --port 8000"
     ]
     depends_on:
       - db
