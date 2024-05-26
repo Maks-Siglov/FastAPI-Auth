@@ -1,12 +1,12 @@
 import logging
 
-from src.settings import log_settings
+from src.settings import LogSettings
 
 
 def logger_config() -> None:
     logger = logging.getLogger("root")
-    logger.setLevel(level=log_settings.level)
+    logger.setLevel(level=LogSettings.level)
     handler = logging.StreamHandler()
-    my_formatter = logging.Formatter(log_settings.ROOT_FORMATTER)
+    my_formatter = logging.Formatter(LogSettings.ROOT_FORMATTER)
     handler.setFormatter(my_formatter)
     logger.addHandler(handler)

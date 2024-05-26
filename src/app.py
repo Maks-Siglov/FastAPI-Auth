@@ -5,11 +5,11 @@ from fastapi import APIRouter, FastAPI, HTTPException
 
 from uvicorn import Config, Server
 
+from src.api.routes import api_router_v1
 from src.db.session import close_dbs
 from src.error_handler import http_exception_handler
 from src.logger import logger_config
-from src.routes import api_router_v1
-from src.settings import app_settings
+from src.settings import AppSettings
 
 logger_config()
 
@@ -34,9 +34,9 @@ if __name__ == "__main__":
     server = Server(
         Config(
             app=app,
-            host=app_settings.host,
-            port=app_settings.port,
-            reload=app_settings.reload,
+            host=AppSettings.host,
+            port=AppSettings.port,
+            reload=AppSettings.reload,
         )
     )
     server.run()

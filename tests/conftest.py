@@ -6,7 +6,7 @@ import pytest
 
 from api.v1.auth.utils.password import hash_password
 from src.app import app
-from src.settings import db_settings
+from src.settings import DbSettings
 from src.db.models import User
 from src.db.session import (
     close_dbs,
@@ -27,7 +27,7 @@ def loop():
 
 @pytest.fixture(scope="session", autouse=True)
 async def connect_db(loop):
-    await create_db(db_settings.get_postgres_db_url(), db_settings.db_name)
+    await create_db(DbSettings.get_postgres_db_url(), DbSettings.db_name)
     bind = await get_engine()
     await create_tables(bind)
 
@@ -35,7 +35,7 @@ async def connect_db(loop):
 
     await drop_tables(bind)
     await close_dbs()
-    await drop_db(db_settings.get_postgres_db_url(), db_settings.db_name)
+    await drop_db(DbSettings.get_postgres_db_url(), DbSettings.db_name)
 
 
 @pytest.fixture(scope="session")

@@ -1,9 +1,14 @@
 from datetime import datetime
 
-from sqlalchemy import func
+from sqlalchemy import Enum, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from src.db.models.base import Base
+
+
+class Role(Enum):
+    user = "user"
+    admin = "admin"
 
 
 class User(Base):
@@ -12,6 +17,7 @@ class User(Base):
     email: Mapped[str] = mapped_column(unique=True)
     password: Mapped[str] = mapped_column()
 
+    # role: Enum = mapped_column(Enum(Role))
     balance: Mapped[int] = mapped_column(default=0)
 
     is_active: Mapped[bool] = mapped_column(default=True)

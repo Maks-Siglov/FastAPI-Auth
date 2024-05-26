@@ -1,8 +1,8 @@
 import os
+from dataclasses import dataclass
 from pathlib import Path
 
 from dotenv import load_dotenv
-from pydantic_settings import BaseSettings
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -10,13 +10,15 @@ dotenv_path = os.path.join(BASE_DIR, "..", ".env.local")
 load_dotenv(dotenv_path)
 
 
-class AppSettings(BaseSettings):
+@dataclass
+class AppSettings:
     host: str = os.environ["APP_HOST"]
     port: int = int(os.environ["APP_PORT"])
     reload: bool = bool(os.environ["APP_RELOAD"])
 
 
-class DbSettings(BaseSettings):
+@dataclass
+class DbSettings:
     db_name: str = os.environ["DB_NAME"]
     db_user: str = os.environ["DB_USER"]
     db_password: str = os.environ["DB_PASSWORD"]
@@ -30,55 +32,55 @@ class DbSettings(BaseSettings):
 
     echo: bool = bool(os.environ["DB_ECHO"])
 
-    def get_async_db_url(self) -> str:
+    @classmethod
+    def get_async_db_url(cls) -> str:
         return (
-            f"{self.async_db_engine}://{self.db_user}:{self.db_password}@"
-            f"{self.db_host}:{self.db_port}/{self.db_name}"
+            f"{cls.async_db_engine}://{cls.db_user}:{cls.db_password}@"
+            f"{cls.db_host}:{cls.db_port}/{cls.db_name}"
         )
 
-    def get_sync_db_url(self) -> str:
+    @classmethod
+    def get_sync_db_url(cls) -> str:
         return (
-            f"{self.sync_db_engine}://{self.db_user}:{self.db_password}@"
-            f"{self.db_host}:{self.db_port}/{self.db_name}"
+            f"{cls.sync_db_engine}://{cls.db_user}:{cls.db_password}@"
+            f"{cls.db_host}:{cls.db_port}/{cls.db_name}"
         )
 
-    def get_postgres_db_url(self) -> str:
+    @classmethod
+    def get_postgres_db_url(cls) -> str:
         return (
-            f"{self.async_db_engine}://{self.db_user}:{self.db_password}@"
-            f"{self.db_host}:{self.db_port}/{self.postgres_db}"
+            f"{cls.async_db_engine}://{cls.db_user}:{cls.db_password}@"
+            f"{cls.db_host}:{cls.db_port}/{cls.postgres_db}"
         )
 
 
-class LogSettings(BaseSettings):
+@dataclass
+class LogSettings:
     level: str = os.environ["LOGGER_LEVEL"]
     ROOT_FORMATTER: str = (
         "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
     )
 
 
-class RedisSettings(BaseSettings):
+@dataclass
+class RedisSettings:
     host: str = os.environ["REDIS_HOST"]
     port: int = int(os.environ["REDIS_PORT"])
 
-    def get_redis_url(self) -> str:
-        return f"redis://{self.host}:{self.port}"
+    @classmethod
+    def get_redis_url(cls) -> str:
+        return f"redis://{cls.host}:{cls.port}"
 
 
-class JWTSettings(BaseSettings):
+@dataclass
+class JWTSettings:
     ACCESS_TOKEN_TYPE: str = "Access"
     REFRESH_TOKEN_TYPE: str = "Refresh"
     ACCESS_TOKEN_EXPIRE_SECONDS: int = 15 * 60
     REFRESH_TOKEN_EXPIRE_SECONDS: int = 30 * 24 * 30 * 60
 
 
-class SecuritySettings(BaseSettings):
+@dataclass
+class SecuritySettings:
     ALGORITHM: str = os.environ["SECURITY_ALGORITHM"]
     SECRET_KEY: str = os.environ["SECRET_KEY"]
-
-
-app_settings = AppSettings()
-db_settings = DbSettings()
-jwt_settings = JWTSettings()
-security_settings = SecuritySettings()
-log_settings = LogSettings()
-redis_settings = RedisSettings()

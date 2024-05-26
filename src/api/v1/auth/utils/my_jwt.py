@@ -4,7 +4,7 @@ from typing import Any
 import jwt
 
 from src.db.models import User
-from src.settings import jwt_settings, security_settings
+from src.settings import JWTSettings, SecuritySettings
 
 
 def create_jwt(
@@ -20,8 +20,8 @@ def create_jwt(
     jwt_payload.update(token_data)
     token = jwt.encode(
         payload=jwt_payload,
-        algorithm=security_settings.ALGORITHM,
-        key=security_settings.SECRET_KEY,
+        algorithm=SecuritySettings.ALGORITHM,
+        key=SecuritySettings.SECRET_KEY,
     )
 
     return token, jwt_payload
@@ -35,18 +35,18 @@ def create_access_token(user: User) -> tuple[str, dict[str, Any]]:
         "token_revoked": False,
     }
     return create_jwt(
-        jwt_settings.ACCESS_TOKEN_TYPE,
+        JWTSettings.ACCESS_TOKEN_TYPE,
         jwt_payload,
-        jwt_settings.ACCESS_TOKEN_EXPIRE_SECONDS,
+        JWTSettings.ACCESS_TOKEN_EXPIRE_SECONDS,
     )
 
 
 def create_refresh_token(user: User) -> tuple[str, dict[str, Any]]:
     jwt_payload = {"sub": user.email, "token_revoked": False}
     return create_jwt(
-        jwt_settings.REFRESH_TOKEN_TYPE,
+        JWTSettings.REFRESH_TOKEN_TYPE,
         jwt_payload,
-        jwt_settings.REFRESH_TOKEN_EXPIRE_SECONDS,
+        JWTSettings.REFRESH_TOKEN_EXPIRE_SECONDS,
     )
 
 
@@ -54,16 +54,16 @@ def revoke_jwt(payload: dict[str, Any]) -> str:
     payload["token_revoked"] = True
     return jwt.encode(
         payload=payload,
-        algorithm=security_settings.ALGORITHM,
-        key=security_settings.SECRET_KEY,
+        algorithm=SecuritySettings.ALGORITHM,
+        key=SecuritySettings.SECRET_KEY,
     )
 
 
 def decode_jwt(token: str) -> dict[str, Any]:
     return jwt.decode(
         jwt=token,
-        algorithms=[security_settings.ALGORITHM],
-        key=security_settings.SECRET_KEY,
+        algorithms=[SecuritySettings.ALGORITHM],
+        key=SecuritySettings.SECRET_KEY,
     )
 
 
