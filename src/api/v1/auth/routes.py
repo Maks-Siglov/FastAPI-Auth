@@ -18,12 +18,12 @@ from src.api.v1.auth.dependencies import (
     get_token_payload,
     get_user_from_refresh_token,
 )
-from src.api.v1.auth.schemas.token import (
+from src.api.v1.auth.models.token import (
     AccessTokenSchema,
     RevokedAccessTokenSchema,
     TokenSchema,
 )
-from src.api.v1.auth.schemas.user import (
+from src.api.v1.auth.models.user import (
     ChangePasswordSchema,
     UserCreationSchema,
     UserLoginSchema,

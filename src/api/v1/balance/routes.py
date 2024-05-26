@@ -8,7 +8,7 @@ from src.api.exceptions import (
 )
 from src.api.v1.auth.dependencies import get_current_user
 from src.api.v1.balance.dependencies import get_user_balance
-from src.api.v1.balance.schemas import AmountSchema, UserBalanceSchema
+from src.api.v1.balance.models import AmountSchema, UserBalanceSchema
 from src.db.models import User
 from src.db.session import s
 

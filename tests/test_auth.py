@@ -1,7 +1,7 @@
 import pytest
 from starlette.testclient import TestClient
 
-from src.api.v1.auth.schemas.token import TokenSchema
+from src.api.v1.auth.models.token import TokenSchema
 
 API_V1 = "/api/v1"
 

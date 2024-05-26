@@ -1,6 +1,6 @@
 from sqlalchemy import ScalarResult, desc, select
 
-from src.api.v1.admin.schemas import AdminQueryParams
+from src.api.v1.admin.models import AdminQueryParams
 from src.db.models import User
 from src.db.session import s
 
