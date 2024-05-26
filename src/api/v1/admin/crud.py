@@ -1,11 +1,11 @@
-from sqlalchemy import desc, select
+from sqlalchemy import ScalarResult, desc, select
 
 from src.api.v1.admin.schemas import AdminQueryParams
 from src.db.models import User
 from src.db.session import s
 
 
-async def filtered_users(params: AdminQueryParams) -> list[User]:
+async def filtered_users(params: AdminQueryParams) -> ScalarResult[User]:
     query = select(User)
     if params.user_id is not None:
         query = query.filter(User.id == params.user_id)
@@ -23,5 +23,4 @@ async def filtered_users(params: AdminQueryParams) -> list[User]:
         else:
             query = query.order_by(getattr(User, params.order_by))
 
-    result = await s.user_db.execute(query)
-    return result.scalars().all()
+    return await s.user_db.scalars(query)
