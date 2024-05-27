@@ -1,21 +1,27 @@
 import asyncio
+from asyncio import current_task
 
 from fastapi.testclient import TestClient
 
+from sqlalchemy.ext.asyncio import async_scoped_session
+
 import pytest
 
-from api.v1.auth.utils.password import hash_password
+from src.api.v1.auth.utils.password import hash_password
 from src.app import app
-from src.settings import DbSettings
 from src.db.models import User
 from src.db.session import (
     close_dbs,
-    get_engine,
-    pop_session,
-    s,
-    set_session_pool,
+    get_async_pool,
+    s
 )
-from src.db.utils import create_db, create_tables, drop_db, drop_tables
+from src.db.utils import (
+    create_db,
+    create_tables,
+    drop_db,
+    drop_tables
+)
+from src.settings import DbSettings
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -28,12 +34,12 @@ def loop():
 @pytest.fixture(scope="session", autouse=True)
 async def connect_db(loop):
     await create_db(DbSettings.get_postgres_db_url(), DbSettings.db_name)
-    bind = await get_engine()
-    await create_tables(bind)
+    current_pool = await get_async_pool(DbSettings.get_async_db_url())
+    await create_tables(current_pool.engine)
 
     yield
 
-    await drop_tables(bind)
+    await drop_tables(current_pool.engine)
     await close_dbs()
     await drop_db(DbSettings.get_postgres_db_url(), DbSettings.db_name)
 
@@ -43,9 +49,11 @@ def test_client() -> TestClient:
     return TestClient(app)
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="session")
 async def test_user() -> None:
-    await set_session_pool()
+    current_pool = await get_async_pool(DbSettings.get_async_db_url())
+    ses = async_scoped_session(current_pool.maker, scopefunc=current_task)
+    s.user_db = ses()
 
     test_user = User(
         email="test_email@gmail.com", password=hash_password("Test_password22")
@@ -55,7 +63,9 @@ async def test_user() -> None:
         password=hash_password("Test_password22"),
         is_active=False,
     )
+
     s.user_db.add_all([test_user, test_in_active_user])
     await s.user_db.commit()
 
-    await pop_session()
+    await s.user_db.close()
+    await ses.remove()

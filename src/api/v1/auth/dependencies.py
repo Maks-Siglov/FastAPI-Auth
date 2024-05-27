@@ -11,7 +11,7 @@ from src.api.exceptions import (
     invalid_token_credential_exception,
     invalid_token_exception,
     invalid_token_type_exception,
-    revoked_token_error,
+    revoked_token_error
 )
 from src.api.v1.auth.crud import get_user_by_email
 from src.api.v1.auth.utils.my_jwt import validate_token_type

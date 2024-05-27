@@ -1,4 +1,8 @@
-from sqlalchemy import ScalarResult, desc, select
+from sqlalchemy import (
+    ScalarResult,
+    desc,
+    select
+)
 
 from src.api.v1.admin.models import AdminQueryParams
 from src.db.models import User

@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_scoped_session,
     async_sessionmaker,
-    create_async_engine,
+    create_async_engine
 )
 
 from src.settings import DbSettings
@@ -32,14 +32,6 @@ session_pools: dict[str, EnginePool] = {}
 
 class SessionException(Exception):
     pass
-
-
-async def set_session_pool() -> None:
-    current_pool = await get_async_pool(DbSettings.get_async_db_url())
-    s.user_db = current_pool.maker()
-    await s.user_db.connection(
-        execution_options={"isolation_level": "AUTOCOMMIT"}
-    )
 
 
 async def get_async_pool(
@@ -90,37 +82,20 @@ async def _create_connection() -> async_scoped_session[AsyncSession]:
 
 
 async def handle_session() -> AsyncGenerator[None, None]:
-    AsyncScopedSession = await _create_connection()
-    s.user_db = AsyncScopedSession()
+    my_async_scoped_session = await _create_connection()
+    s.user_db = my_async_scoped_session()
     try:
         yield
-        await AsyncScopedSession.commit()
+        await my_async_scoped_session.commit()
     finally:
         await s.user_db.close()
-        await AsyncScopedSession.remove()
+        await my_async_scoped_session.remove()
 
 
 async def close_dbs() -> None:
     for ses_pool in session_pools.values():
         await ses_pool.engine.dispose()
     log.info("Session pools closed")
-
-
-async def pop_session() -> None:
-    try:
-        await s.user_db.commit()
-    except Exception as exc:
-        log.error("During session error occurred %s.Session ROLLBACK", exc)
-        await s.user_db.rollback()
-    finally:
-        await s.user_db.close()
-
-
-async def get_engine(
-    db_url: str = DbSettings.get_async_db_url(),
-) -> AsyncEngine:
-    current_pool = await get_async_pool(db_url)
-    return current_pool.engine
 
 
 class Session:
