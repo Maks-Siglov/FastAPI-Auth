@@ -17,7 +17,7 @@ class User(Base):
     email: Mapped[str] = mapped_column(unique=True)
     password: Mapped[str] = mapped_column()
 
-    # role: Enum = mapped_column(Enum(Role))
+    # role: Mapped[Enum] = mapped_column(Enum(Role))
     balance: Mapped[int] = mapped_column(default=0)
 
     is_active: Mapped[bool] = mapped_column(default=True)
