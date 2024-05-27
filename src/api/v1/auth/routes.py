@@ -1,5 +1,5 @@
 import json
-import time
+from datetime import datetime
 from typing import Any
 
 from fastapi import APIRouter, Depends
@@ -12,7 +12,13 @@ from src.api.exceptions import (
     not_active_user_exception,
     repeat_email_exception
 )
-from src.api.v1.auth.crud import create_user, get_user_by_email
+from src.api.v1.auth.crud import (
+    activate_user,
+    change_user_password,
+    create_user,
+    deactivate_my_user,
+    get_user_by_email
+)
 from src.api.v1.auth.dependencies import (
     get_current_user,
     get_token_payload,
@@ -36,7 +42,6 @@ from src.api.v1.auth.utils.my_jwt import (
 )
 from src.api.v1.auth.utils.password import hash_password, verify_password
 from src.db.models import User
-from src.db.session import s
 from src.redis_config import get_redis_client
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -58,10 +63,7 @@ async def signup(payload: UserCreationSchema) -> UserSchema:
         if user.is_active:
             raise repeat_email_exception
 
-        user.is_active = True
-        await s.user_db.commit()
-        await s.user_db.refresh(user)
-
+        await activate_user(user)
         return UserSchema.model_validate(user)
 
     payload.password = hash_password(payload.password)
@@ -93,7 +95,7 @@ async def login(
     access_token, access_payload = create_access_token(user)
     refresh_token, refresh_payload = create_refresh_token(user)
 
-    now = int(time.time())
+    now = int(datetime.utcnow().timestamp())
     await redis_client.set(
         name=access_token,
         value=json.dumps(access_payload),
@@ -125,11 +127,9 @@ async def change_password(
 ) -> UserSchema:
     if not verify_password(payload.old_password, user.password):
         raise credential_exceptions
-    new_password = hash_password(payload.new_password)
 
-    user.password = new_password
-    await s.user_db.commit()
-    await s.user_db.refresh(user)
+    new_password = hash_password(payload.new_password)
+    await change_user_password(user, new_password)
     return UserSchema.model_validate(user)
 
 
@@ -168,7 +168,5 @@ async def refresh_access_token(
 async def deactivate_user(
     user: User = Depends(get_current_user),
 ) -> UserSchema:
-    user.is_active = False
-    await s.user_db.commit()
-    await s.user_db.refresh(user)
+    await deactivate_my_user(user)
     return UserSchema.model_validate(user)
