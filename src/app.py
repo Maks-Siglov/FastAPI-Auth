@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
@@ -17,10 +18,14 @@ from src.settings import AppSettings
 
 logger_config()
 
+log = logging.getLogger(__name__)
+
 
 @asynccontextmanager
 async def lifespan(my_app: FastAPI) -> AsyncGenerator[None, None]:
+    log.warning("Start application")
     yield
+    log.warning("Application shutdown")
     await close_dbs()
 
 
