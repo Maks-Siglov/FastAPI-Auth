@@ -34,6 +34,10 @@ class SessionException(Exception):
     pass
 
 
+class EngineCreationException(Exception):
+    pass
+
+
 async def get_async_pool(
     db_url: str = DbSettings.get_async_db_url(),
 ) -> EnginePool:
@@ -82,11 +86,17 @@ async def _create_connection() -> async_scoped_session[AsyncSession]:
 
 
 async def handle_session() -> AsyncGenerator[None, None]:
-    my_async_scoped_session = await _create_connection()
-    s.user_db = my_async_scoped_session()
+    try:
+        my_async_scoped_session = await _create_connection()
+        s.user_db = my_async_scoped_session()
+    except Exception as exc:
+        raise EngineCreationException("Can't connect to database") from exc
     try:
         yield
-        await my_async_scoped_session.commit()
+        await s.user_db.commit()
+    except Exception as exc:
+        await s.user_db.rollback()
+        raise exc
     finally:
         await s.user_db.close()
         await my_async_scoped_session.remove()
