@@ -14,8 +14,8 @@ async def create_db(postgres_url: str, db_name: str) -> None:
     async with engine.connect() as connection:
         query = f"CREATE DATABASE {db_name};"
         try:
-            log.warning("Created database %s", db_name)
             await connection.execute(text(query))
+            log.warning("Created database %s", db_name)
         except ProgrammingError:
             log.error("Database %s already exists", db_name)
 
