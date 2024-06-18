@@ -68,3 +68,9 @@ insufficient_balance_error = HTTPException(
     status_code=status.HTTP_409_CONFLICT,
     detail="Insufficient funds on the balance sheet",
 )
+
+
+not_admin_user_role_exception = HTTPException(
+    status_code=status.HTTP_403_FORBIDDEN,
+    detail="User do not has admin role",
+)
