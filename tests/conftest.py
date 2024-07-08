@@ -1,38 +1,21 @@
-import asyncio
 from asyncio import current_task
-
-from fastapi.testclient import TestClient
+from typing import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import async_scoped_session
 
-import pytest
+import pytest_asyncio
+from httpx import AsyncClient
 
 from src.api.v1.auth.utils.password import hash_password
 from src.app import app
 from src.db.models import User
-from src.db.session import (
-    close_dbs,
-    get_async_pool,
-    s
-)
-from src.db.utils import (
-    create_db,
-    create_tables,
-    drop_db,
-    drop_tables
-)
+from src.db.session import close_dbs, get_async_pool, s
+from src.db.utils import create_db, create_tables, drop_db, drop_tables
 from src.settings import DbSettings
 
 
-@pytest.fixture(scope="session", autouse=True)
-def loop():
-    loop = asyncio.new_event_loop()
-    yield
-    loop.close()
-
-
-@pytest.fixture(scope="session", autouse=True)
-async def connect_db(loop):
+@pytest_asyncio.fixture()
+async def connect_db():
     await create_db(DbSettings.get_postgres_db_url(), DbSettings.db_name)
     current_pool = await get_async_pool(DbSettings.get_async_db_url())
     await create_tables(current_pool.engine)
@@ -44,12 +27,13 @@ async def connect_db(loop):
     await drop_db(DbSettings.get_postgres_db_url(), DbSettings.db_name)
 
 
-@pytest.fixture(scope="session")
-def test_client() -> TestClient:
-    return TestClient(app)
+@pytest_asyncio.fixture()
+async def a_test_client(connect_db) -> AsyncGenerator[AsyncClient, None]:
+    async with AsyncClient(app=app, base_url="http://test") as a_client:
+        yield a_client
 
 
-@pytest.fixture(scope="session")
+@pytest_asyncio.fixture(scope="session")
 async def test_user() -> None:
     current_pool = await get_async_pool(DbSettings.get_async_db_url())
     ses = async_scoped_session(current_pool.maker, scopefunc=current_task)

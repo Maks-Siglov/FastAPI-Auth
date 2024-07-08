@@ -1,17 +1,18 @@
 import pytest
-from starlette.testclient import TestClient
+from httpx import AsyncClient
 
 from src.api.v1.auth.models.token import TokenSchema
 
 API_V1 = "/api/v1"
 
 
-def test_signup(test_client: TestClient):
+@pytest.mark.asyncio
+async def test_signup(a_test_client: AsyncClient):
     signup_post_data = {
         "email": "new_user@gmail.com",
         "password": "Test_password22",
     }
-    response = test_client.post(
+    response = await a_test_client.post(
         f"{API_V1}/auth/signup/", json=signup_post_data
     )
     assert response.status_code == 201
@@ -26,20 +27,26 @@ INVALID_SIGNUP_DATA = [
 ]
 
 
+@pytest.mark.asyncio
 @pytest.mark.parametrize("login_data, expected_code", INVALID_SIGNUP_DATA)
-def test_invalid_signup(
-    test_client: TestClient, login_data: dict[str, str], expected_code: int
+async def test_invalid_signup(
+    a_test_client: AsyncClient, login_data: dict[str, str], expected_code: int
 ):
-    response = test_client.post(f"{API_V1}/auth/signup/", json=login_data)
+    response = await a_test_client.post(
+        f"{API_V1}/auth/signup/", json=login_data
+    )
     assert response.status_code == expected_code
 
 
-def test_login(test_client: TestClient):
+@pytest.mark.asyncio
+async def test_login(a_test_client: AsyncClient):
     login_post_data = {
         "email": "test_email@gmail.com",
         "password": "Test_password22",
     }
-    response = test_client.post(f"{API_V1}/auth/login/", json=login_post_data)
+    response = await a_test_client.post(
+        f"{API_V1}/auth/login/", json=login_post_data
+    )
 
     assert response.status_code == 200
 
@@ -50,23 +57,29 @@ def test_login(test_client: TestClient):
     assert token_data.token_type is not None
 
 
-def test_invalid_password_login(test_client: TestClient):
+@pytest.mark.asyncio
+async def test_invalid_password_login(a_test_client: AsyncClient):
     login_post_data = {
         "email": "test_email@gmail.com",
         "password": "Wrong_password22",
     }
-    response = test_client.post(f"{API_V1}/auth/login/", json=login_post_data)
+    response = await a_test_client.post(
+        f"{API_V1}/auth/login/", json=login_post_data
+    )
 
     assert response.status_code == 401
     assert response.json()["detail"] == "Invalid user credentials"
 
 
-def test_in_active_user_login(test_client: TestClient):
+@pytest.mark.asyncio
+async def test_in_active_user_login(a_test_client: AsyncClient):
     login_post_data = {
         "email": "test_in_active_user@gmail.com",
         "password": "Test_password22",
     }
-    response = test_client.post(f"{API_V1}/auth/login/", json=login_post_data)
+    response = await a_test_client.post(
+        f"{API_V1}/auth/login/", json=login_post_data
+    )
 
     assert response.status_code == 401
     assert response.json()["detail"] == "User is not active"
