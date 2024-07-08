@@ -96,7 +96,6 @@ async def login(
     refresh_token, refresh_payload = create_refresh_token(user)
 
     now = int(datetime.utcnow().timestamp())
-    print("****************", access_payload["exp"], now)
     await redis_client.set(
         name=access_token,
         value=json.dumps(access_payload),

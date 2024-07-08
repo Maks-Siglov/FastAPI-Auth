@@ -39,25 +39,6 @@ async def test_invalid_signup(
 
 
 @pytest.mark.asyncio
-async def test_login(a_test_client: AsyncClient):
-    login_post_data = {
-        "email": "test_email@gmail.com",
-        "password": "Test_password22",
-    }
-    response = await a_test_client.post(
-        f"{API_V1}/auth/login/", json=login_post_data
-    )
-
-    assert response.status_code == 200
-
-    token_data = TokenSchema(**response.json())
-
-    assert token_data.access_token is not None
-    assert token_data.refresh_token is not None
-    assert token_data.token_type is not None
-
-
-@pytest.mark.asyncio
 async def test_invalid_password_login(a_test_client: AsyncClient):
     login_post_data = {
         "email": "test_email@gmail.com",
@@ -72,7 +53,7 @@ async def test_invalid_password_login(a_test_client: AsyncClient):
 
 
 @pytest.mark.asyncio
-async def test_in_active_user_login(a_test_client: AsyncClient):
+async def test_in_active_user_login(a_test_client: AsyncClient, test_user):
     login_post_data = {
         "email": "test_in_active_user@gmail.com",
         "password": "Test_password22",

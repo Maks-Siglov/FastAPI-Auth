@@ -33,8 +33,8 @@ async def a_test_client(connect_db) -> AsyncGenerator[AsyncClient, None]:
         yield a_client
 
 
-@pytest_asyncio.fixture(scope="session")
-async def test_user() -> None:
+@pytest_asyncio.fixture()
+async def test_user(connect_db) -> None:
     current_pool = await get_async_pool(DbSettings.get_async_db_url())
     ses = async_scoped_session(current_pool.maker, scopefunc=current_task)
     s.user_db = ses()
