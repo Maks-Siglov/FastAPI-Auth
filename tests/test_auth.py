@@ -1,9 +1,7 @@
 import pytest
 from httpx import AsyncClient
 
-from src.api.v1.auth.models.token import TokenSchema
-
-API_V1 = "/api/v1"
+AUTH_API_V1 = "/api/v1/auth"
 
 
 @pytest.mark.asyncio
@@ -13,7 +11,7 @@ async def test_signup(a_test_client: AsyncClient):
         "password": "Test_password22",
     }
     response = await a_test_client.post(
-        f"{API_V1}/auth/signup/", json=signup_post_data
+        f"{AUTH_API_V1}/signup/", json=signup_post_data
     )
     assert response.status_code == 201
 
@@ -33,7 +31,7 @@ async def test_invalid_signup(
     a_test_client: AsyncClient, login_data: dict[str, str], expected_code: int
 ):
     response = await a_test_client.post(
-        f"{API_V1}/auth/signup/", json=login_data
+        f"{AUTH_API_V1}/signup/", json=login_data
     )
     assert response.status_code == expected_code
 
@@ -45,7 +43,7 @@ async def test_invalid_password_login(a_test_client: AsyncClient):
         "password": "Wrong_password22",
     }
     response = await a_test_client.post(
-        f"{API_V1}/auth/login/", json=login_post_data
+        f"{AUTH_API_V1}/login/", json=login_post_data
     )
 
     assert response.status_code == 401
@@ -59,7 +57,7 @@ async def test_in_active_user_login(a_test_client: AsyncClient, test_user):
         "password": "Test_password22",
     }
     response = await a_test_client.post(
-        f"{API_V1}/auth/login/", json=login_post_data
+        f"{AUTH_API_V1}/login/", json=login_post_data
     )
 
     assert response.status_code == 401
