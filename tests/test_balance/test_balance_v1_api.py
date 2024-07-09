@@ -24,6 +24,7 @@ async def test_get_balance(
 async def test_deposit_balance(
     async_test_balance_client: AsyncClient, test_user_with_balance: User
 ):
+    initial_balance = test_user_with_balance.balance
     deposit_post_data = {"amount": 200}
 
     response = await async_test_balance_client.post(
@@ -32,11 +33,17 @@ async def test_deposit_balance(
 
     assert response.status_code == 200
 
+    assert response.json() == {
+        "user_id": test_user_with_balance.id,
+        "balance": initial_balance + deposit_post_data["amount"],
+    }
+
 
 @pytest.mark.asyncio
 async def test_withdraw_balance(
     async_test_balance_client: AsyncClient, test_user_with_balance: User
 ):
+    initial_balance = test_user_with_balance.balance
     deposit_post_data = {"amount": 200}
 
     response = await async_test_balance_client.post(
@@ -44,6 +51,11 @@ async def test_withdraw_balance(
     )
 
     assert response.status_code == 200
+
+    assert response.json() == {
+        "user_id": test_user_with_balance.id,
+        "balance": initial_balance - deposit_post_data["amount"],
+    }
 
 
 @pytest.mark.asyncio
