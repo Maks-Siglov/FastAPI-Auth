@@ -5,13 +5,11 @@ from fastapi import APIRouter, FastAPI
 
 from sqlalchemy.ext.asyncio import async_scoped_session
 
-import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 
 from src.api.routers import api_router_v1
 from src.api.v1.admin.dependencies import check_admin_role
-from src.api.v1.auth.utils.my_jwt import create_access_token
 from src.api.v1.auth.utils.password import hash_password
 from src.db.models import User
 from src.db.session import get_async_pool, s
@@ -55,9 +53,3 @@ async def test_admin_user(connect_db) -> None:
 
     await s.user_db.close()
     await ses.remove()
-
-
-@pytest.fixture()
-def test_admin_user_token(test_admin_user: User) -> str:
-    access_token, _ = create_access_token(test_admin_user)
-    return access_token

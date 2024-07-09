@@ -6,10 +6,6 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from src.db.models.base import Base
 
-# class Role(enum.Enum):
-#     user = "user"
-#     admin = "admin"
-
 
 class User(Base):
     __tablename__ = "users"
@@ -17,7 +13,6 @@ class User(Base):
     email: Mapped[str] = mapped_column(unique=True)
     password: Mapped[str] = mapped_column()
 
-    # role: Mapped[enum.Enum] = mapped_column(Enum(Role), default=Role.user)
     role: Mapped[str] = mapped_column(default="user")
     balance: Mapped[int] = mapped_column(default=0)
 

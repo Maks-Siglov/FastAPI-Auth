@@ -7,13 +7,13 @@ ADMIN_API_V1 = "/api/v1/admin"
 
 
 query_params_with_expected_code = [
-        ({"user_id": 1}, 200),
-        ({"email": "test_email@gmail.com"}, 200),
-        ({"is_active": True}, 200),
-        ({"order_by": "created_at", "desc": True}, 200),
-        ({"order_by": "is_active"}, 200),
-        ({}, 200),
-    ]
+    ({"user_id": 1}, 200),
+    ({"email": "test_email@gmail.com"}, 200),
+    ({"is_active": True}, 200),
+    ({"order_by": "created_at", "desc": True}, 200),
+    ({"order_by": "is_active"}, 200),
+    ({}, 200),
+]
 
 
 @pytest.mark.asyncio
