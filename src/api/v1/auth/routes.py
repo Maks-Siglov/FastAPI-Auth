@@ -1,3 +1,4 @@
+import asyncio
 import json
 from datetime import datetime
 from typing import Any
@@ -96,15 +97,17 @@ async def login(
     refresh_token, refresh_payload = create_refresh_token(user)
 
     now = int(datetime.utcnow().timestamp())
-    await redis_client.set(
-        name=access_token,
-        value=json.dumps(access_payload),
-        ex=int(access_payload["exp"]) - now,
-    )
-    await redis_client.set(
-        name=refresh_token,
-        value=json.dumps(refresh_payload),
-        ex=int(refresh_payload["exp"]) - now,
+    await asyncio.gather(
+        redis_client.set(
+            name=access_token,
+            value=json.dumps(access_payload),
+            ex=int(access_payload["exp"]) - now,
+        ),
+        redis_client.set(
+            name=refresh_token,
+            value=json.dumps(refresh_payload),
+            ex=int(refresh_payload["exp"]) - now,
+        )
     )
 
     return TokenSchema(access_token=access_token, refresh_token=refresh_token)
