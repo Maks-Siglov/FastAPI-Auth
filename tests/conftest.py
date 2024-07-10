@@ -7,7 +7,12 @@ from httpx import ASGITransport, AsyncClient
 
 from src.api.routers import api_router_v1
 from src.db.session import close_dbs, get_async_pool
-from src.db.utils import create_db, create_tables, drop_db, drop_tables
+from src.db.utils import (
+    create_db,
+    create_tables,
+    drop_db,
+    drop_tables
+)
 from src.settings import DbSettings
 
 

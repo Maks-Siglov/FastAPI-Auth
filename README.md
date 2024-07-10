@@ -9,10 +9,10 @@
 2. Create `fast_auth` postgres db.
     - **Example data in .env.docker:**
     ```bash
-    DB_NAME='fast_auth'
-    DB_USER='admin'
-    DB_PASSWORD='admin'
-    DB_HOST='localhost'
+    DB_NAME=fast_auth
+    DB_USER=admin
+    DB_PASSWORD=admin
+    DB_HOST=localhost
     DB_PORT=5432
     ```
 ## Start With Docker

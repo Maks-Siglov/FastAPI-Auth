@@ -107,7 +107,7 @@ async def login(
             name=refresh_token,
             value=json.dumps(refresh_payload),
             ex=int(refresh_payload["exp"]) - now,
-        )
+        ),
     )
 
     return TokenSchema(access_token=access_token, refresh_token=refresh_token)
