@@ -1,3 +1,6 @@
+# FastAPI Auth
+FastAPI Auth is a robust authentication system built with FastAPI, featuring JWT-based authentication. It efficiently stores and manages tokens in Redis for quick access and scalability.
+
 ## Getting Started
 
 1. Clone the Repository:
@@ -48,7 +51,7 @@
 1. Install dependencies:
 
     ```bash
-    pip install -r requirements/prod.txt -r requirements/tools.txt -r requirements/dev.txt
+    pip install -r requirements/prod.txt -r requirements/test.txt -r requirements/dev.txt
     ```
 
 2. Apply migrations:
@@ -63,4 +66,10 @@
     uvicorn src.app:app --host 0.0.0.0 --port 8000
     ```
 
-4. Visit `http://127.0.0.1:8000/`
+4. Run Redis for storing JWT tokens
+
+   ```bash
+   redis-server
+   ```
+
+5. Visit `http://127.0.0.1:8000/`
