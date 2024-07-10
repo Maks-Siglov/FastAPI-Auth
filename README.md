@@ -2,8 +2,8 @@
 
 1. Clone the Repository:
     ```bash
-    git clone https://git.foxminded.ua/foxstudent105590/task_20_fastapi_auth.git
-    cd task_20_fastapi_auth/
+    git clone https://github.com/Maks-Siglov/FastAPI-Auth.git
+    cd FastAPI-Auth/
     ```
 
 2. Create `fast_auth` postgres db.
