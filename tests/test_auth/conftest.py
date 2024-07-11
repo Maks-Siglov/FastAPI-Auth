@@ -16,10 +16,28 @@ from src.db.session import get_async_pool, s
 from src.settings import DbSettings
 from tests.test_auth.mock import get_mock_redis_client
 
-
 TEST_USER_EMAIL = "test_email@gmail.com"
 TEST_IN_ACTIVE_USER_EMAIL = "test_in_active_user@gmail.com"
 TEST_USER_PASSWORD = "Test_password22"
+
+AUTH_API_V1 = "/api/v1/auth"
+
+
+@pytest_asyncio.fixture()
+async def async_test_client(connect_db) -> AsyncGenerator[AsyncClient, None]:
+    my_app = FastAPI()
+
+    main_api_router = APIRouter(prefix="/api")
+    main_api_router.include_router(api_router_v1)
+
+    my_app.include_router(main_api_router)
+
+    my_app.dependency_overrides[get_redis_client] = get_mock_redis_client
+
+    async with AsyncClient(
+            transport=ASGITransport(app=my_app), base_url="http://test"
+    ) as a_client:
+        yield a_client
 
 
 @pytest_asyncio.fixture()
@@ -45,17 +63,15 @@ async def test_users(connect_db) -> None:
 
 
 @pytest_asyncio.fixture()
-async def async_test_client(connect_db) -> AsyncGenerator[AsyncClient, None]:
-    my_app = FastAPI()
+async def test_access_token(
+    async_test_client: AsyncClient, test_users: None
+) -> str | None:
+    login_data = {
+        "email": TEST_USER_EMAIL,
+        "password": TEST_USER_PASSWORD,
+    }
+    response = await async_test_client.post(
+        f"{AUTH_API_V1}/login/", json=login_data
+    )
 
-    main_api_router = APIRouter(prefix="/api")
-    main_api_router.include_router(api_router_v1)
-
-    my_app.include_router(main_api_router)
-
-    my_app.dependency_overrides[get_redis_client] = get_mock_redis_client
-
-    async with AsyncClient(
-        transport=ASGITransport(app=my_app), base_url="http://test"
-    ) as a_client:
-        yield a_client
+    return response.json().get("access_token")

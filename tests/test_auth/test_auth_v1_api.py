@@ -1,8 +1,11 @@
 import pytest
 from httpx import AsyncClient
 
-from tests.test_auth.conftest import TEST_USER_PASSWORD, TEST_USER_EMAIL, \
-    TEST_IN_ACTIVE_USER_EMAIL
+from tests.test_auth.conftest import (
+    TEST_IN_ACTIVE_USER_EMAIL,
+    TEST_USER_EMAIL,
+    TEST_USER_PASSWORD,
+)
 
 AUTH_API_V1 = "/api/v1/auth"
 
@@ -74,7 +77,7 @@ async def test_invalid_password_login(async_test_client: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_in_active_user_login(
-    async_test_client: AsyncClient, test_users: None
+        async_test_client: AsyncClient, test_users: None
 ):
     login_post_data = {
         "email": TEST_IN_ACTIVE_USER_EMAIL,
@@ -86,3 +89,24 @@ async def test_in_active_user_login(
 
     assert response.status_code == 401
     assert response.json()["detail"] == "User is not active"
+
+
+@pytest.mark.asyncio
+async def test_fail_change_password(
+        async_test_client: AsyncClient,
+        test_access_token: str | None,
+):
+    async_test_client.headers["Authorization"] = f"Bearer {test_access_token}"
+
+    wrong_change_password_data = {
+        "old_password": "Wrong_password",
+        "new_password": "My_new_password22",
+        "new_password_confirm": "My_new_password22",
+    }
+
+    response = await async_test_client.post(
+        f"{AUTH_API_V1}/change-password/", json=wrong_change_password_data
+    )
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid user credentials"
