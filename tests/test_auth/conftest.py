@@ -29,7 +29,7 @@ AUTH_API_V1 = "/api/v1/auth"
 
 
 @pytest_asyncio.fixture()
-async def test_mock_user(connect_db) -> User:
+async def test_mock_user(connect_db) -> AsyncGenerator[User, None]:
     current_pool = await get_async_pool(DbSettings.get_async_db_url())
     ses = async_scoped_session(current_pool.maker, scopefunc=current_task)
     s.user_db = ses()
@@ -49,7 +49,7 @@ async def test_mock_user(connect_db) -> User:
 
 @pytest_asyncio.fixture()
 async def async_test_client(
-    connect_db, test_mock_user: User
+    test_mock_user: User,
 ) -> AsyncGenerator[AsyncClient, None]:
     my_app = FastAPI()
 
