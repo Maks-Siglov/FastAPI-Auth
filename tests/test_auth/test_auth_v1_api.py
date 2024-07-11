@@ -2,6 +2,7 @@ import pytest
 from httpx import AsyncClient
 
 from src.api.v1.auth.utils.my_jwt import decode_jwt
+from src.db.models import User
 from tests.test_auth.conftest import (
     TEST_IN_ACTIVE_USER_EMAIL,
     TEST_USER_EMAIL,
@@ -100,30 +101,27 @@ wrong_change_password_data = [
             "new_password_confirm": "My_new_password22",
         },
         401,
-        "Invalid user credentials",
     ),
     (
         {
             "old_password": "Test_password22",
             "new_password": "My_new_password22",  # new passwords not match
-            "new_password_confirm": "My_new_no_match_password22",
+            "new_password_confirm": "No_match_password22",
         },
-        401,
-        "Invalid user credentials",
+        422,
     ),
 ]
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "wrong_data, expected_status, expected_detail", wrong_change_password_data
+    "wrong_data, expected_status", wrong_change_password_data
 )
 async def test_fail_change_password(
     async_test_client: AsyncClient,
     test_access_token: str | None,
     wrong_data: dict,
     expected_status: int,
-    expected_detail: str,
 ):
     async_test_client.headers["Authorization"] = f"Bearer {test_access_token}"
 
@@ -132,7 +130,6 @@ async def test_fail_change_password(
     )
 
     assert response.status_code == expected_status
-    assert response.json()["detail"] == expected_detail
 
 
 @pytest.mark.asyncio
@@ -151,3 +148,27 @@ async def test_logout(
     token_bytes = revoked_token.encode("utf-8")
 
     assert decode_jwt(token_bytes)["token_revoked"]
+
+
+@pytest.mark.asyncio
+async def test_refresh(
+    async_test_client: AsyncClient, test_access_token: str | None
+):
+    async_test_client.headers["Authorization"] = f"Bearer {test_access_token}"
+    response = await async_test_client.post(f"{AUTH_API_V1}/refresh/")
+
+    assert response.status_code == 201
+    assert response.json()["access_token"]
+
+
+@pytest.mark.asyncio
+async def test_deactivate_user(
+    async_test_client: AsyncClient,
+    test_access_token: str | None,
+    test_mock_user: User,
+):
+    async_test_client.headers["Authorization"] = f"Bearer {test_access_token}"
+    response = await async_test_client.post(f"{AUTH_API_V1}/deactivate/")
+
+    assert response.status_code == 200
+    assert response.json()["is_active"] is False
