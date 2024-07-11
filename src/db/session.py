@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_scoped_session,
     async_sessionmaker,
-    create_async_engine
+    create_async_engine,
 )
 
 from src.settings import DbSettings

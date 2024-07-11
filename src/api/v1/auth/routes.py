@@ -11,39 +11,39 @@ from starlette import status
 from src.api.exceptions import (
     credential_exceptions,
     not_active_user_exception,
-    repeat_email_exception
+    repeat_email_exception,
 )
 from src.api.v1.auth.crud import (
     activate_user,
     change_user_password,
     create_user,
     deactivate_my_user,
-    get_user_by_email
+    get_user_by_email,
 )
 from src.api.v1.auth.dependencies import (
     get_current_user,
     get_token_payload,
-    get_user_from_refresh_token
+    get_user_from_refresh_token,
 )
 from src.api.v1.auth.models.token import (
     AccessTokenSchema,
     RevokedAccessTokenSchema,
-    TokenSchema
+    TokenSchema,
 )
 from src.api.v1.auth.models.user import (
     ChangePasswordSchema,
     UserCreationSchema,
     UserLoginSchema,
-    UserSchema
+    UserSchema,
 )
 from src.api.v1.auth.utils.my_jwt import (
     create_access_token,
     create_refresh_token,
-    revoke_jwt
+    revoke_jwt,
 )
 from src.api.v1.auth.utils.password import hash_password, verify_password
+from src.api.v1.auth.dependencies import get_redis_client
 from src.db.models import User
-from src.redis_config import get_redis_client
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 

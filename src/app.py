@@ -2,11 +2,7 @@ import logging
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
-from fastapi import (
-    APIRouter,
-    FastAPI,
-    HTTPException
-)
+from fastapi import APIRouter, FastAPI, HTTPException
 
 from uvicorn import Config, Server
 
