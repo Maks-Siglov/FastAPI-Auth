@@ -22,6 +22,7 @@ from src.api.v1.auth.crud import (
 )
 from src.api.v1.auth.dependencies import (
     get_current_user,
+    get_redis_client,
     get_token_payload,
     get_user_from_refresh_token,
 )
@@ -42,7 +43,6 @@ from src.api.v1.auth.utils.my_jwt import (
     revoke_jwt,
 )
 from src.api.v1.auth.utils.password import hash_password, verify_password
-from src.api.v1.auth.dependencies import get_redis_client
 from src.db.models import User
 
 router = APIRouter(prefix="/auth", tags=["auth"])

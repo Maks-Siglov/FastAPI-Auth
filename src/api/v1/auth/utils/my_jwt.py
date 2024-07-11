@@ -59,11 +59,12 @@ def revoke_jwt(payload: dict[str, Any]) -> str:
     )
 
 
-def decode_jwt(token: str) -> dict[str, Any]:
+def decode_jwt(token: bytes) -> dict[str, Any]:
     return jwt.decode(
         jwt=token,
         algorithms=[SecuritySettings.ALGORITHM],
         key=SecuritySettings.SECRET_KEY,
+        options={"verify_exp": False},
     )
 
 

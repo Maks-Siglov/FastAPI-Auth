@@ -9,5 +9,8 @@ class MockRedisClient:
         return self.store.get(name)
 
 
+mock_redis_client = MockRedisClient()
+
+
 async def get_mock_redis_client():
-    return MockRedisClient()
+    return mock_redis_client

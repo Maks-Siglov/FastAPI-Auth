@@ -35,7 +35,7 @@ async def async_test_client(connect_db) -> AsyncGenerator[AsyncClient, None]:
     my_app.dependency_overrides[get_redis_client] = get_mock_redis_client
 
     async with AsyncClient(
-            transport=ASGITransport(app=my_app), base_url="http://test"
+        transport=ASGITransport(app=my_app), base_url="http://test"
     ) as a_client:
         yield a_client
 
