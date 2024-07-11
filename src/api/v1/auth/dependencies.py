@@ -21,7 +21,7 @@ from src.settings import JWTSettings, RedisSettings
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login/")
 
 
-async def get_redis_client():
+async def get_redis_client() -> Redis:
     redis_client = Redis(host=RedisSettings.host, port=RedisSettings.port)
     yield redis_client
     await redis_client.aclose()
