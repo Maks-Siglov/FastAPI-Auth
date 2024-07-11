@@ -1,5 +1,5 @@
 import json
-from typing import Any
+from typing import Any, AsyncGenerator
 
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
@@ -21,7 +21,7 @@ from src.settings import JWTSettings, RedisSettings
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login/")
 
 
-async def get_redis_client() -> Redis:
+async def get_redis_client() -> AsyncGenerator[Redis, None]:
     redis_client = Redis(host=RedisSettings.host, port=RedisSettings.port)
     yield redis_client
     await redis_client.aclose()
