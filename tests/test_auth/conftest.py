@@ -1,36 +1,39 @@
 from asyncio import current_task
-
-from sqlalchemy.ext.asyncio import async_scoped_session
-
-
-from src.api.v1.auth.utils.password import hash_password
-from src.db.models import User
-from src.db.session import get_async_pool, s
-from src.settings import DbSettings
 from typing import AsyncGenerator
 
 from fastapi import APIRouter, FastAPI
+
+from sqlalchemy.ext.asyncio import async_scoped_session
 
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 
 from src.api.routers import api_router_v1
 from src.api.v1.auth.dependencies import get_redis_client
+from src.api.v1.auth.utils.password import hash_password
+from src.db.models import User
+from src.db.session import get_async_pool, s
+from src.settings import DbSettings
 from tests.test_auth.mock import get_mock_redis_client
 
 
+TEST_USER_EMAIL = "test_email@gmail.com"
+TEST_IN_ACTIVE_USER_EMAIL = "test_in_active_user@gmail.com"
+TEST_USER_PASSWORD = "Test_password22"
+
+
 @pytest_asyncio.fixture()
-async def test_user(connect_db) -> None:
+async def test_users(connect_db) -> None:
     current_pool = await get_async_pool(DbSettings.get_async_db_url())
     ses = async_scoped_session(current_pool.maker, scopefunc=current_task)
     s.user_db = ses()
 
     test_user = User(
-        email="test_email@gmail.com", password=hash_password("Test_password22")
+        email=TEST_USER_EMAIL, password=hash_password(TEST_USER_PASSWORD)
     )
     test_in_active_user = User(
-        email="test_in_active_user@gmail.com",
-        password=hash_password("Test_password22"),
+        email=TEST_IN_ACTIVE_USER_EMAIL,
+        password=hash_password(TEST_USER_PASSWORD),
         is_active=False,
     )
 

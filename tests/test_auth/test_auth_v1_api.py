@@ -1,7 +1,8 @@
 import pytest
 from httpx import AsyncClient
 
-from src.db.models import User
+from tests.test_auth.conftest import TEST_USER_PASSWORD, TEST_USER_EMAIL, \
+    TEST_IN_ACTIVE_USER_EMAIL
 
 AUTH_API_V1 = "/api/v1/auth"
 
@@ -10,7 +11,7 @@ AUTH_API_V1 = "/api/v1/auth"
 async def test_signup(async_test_client: AsyncClient):
     signup_post_data = {
         "email": "new_user@gmail.com",
-        "password": "Test_password22",
+        "password": TEST_USER_PASSWORD,
     }
     response = await async_test_client.post(
         f"{AUTH_API_V1}/signup/", json=signup_post_data
@@ -19,7 +20,7 @@ async def test_signup(async_test_client: AsyncClient):
 
 
 INVALID_SIGNUP_DATA = [
-    ({"email": "string", "password": "Test_password22"}, 422),
+    ({"email": "wrong_email", "password": "Test_password22"}, 422),
     ({"email": "test_email2@gmail.com", "password": "no_uppercase2"}, 422),
     ({"email": "test_email2@gmail.com", "password": "NO_LOVERCASE2"}, 422),
     ({"email": "test_email2@gmail.com", "password": "No2symbol"}, 422),
@@ -30,9 +31,9 @@ INVALID_SIGNUP_DATA = [
 @pytest.mark.asyncio
 @pytest.mark.parametrize("login_data, expected_code", INVALID_SIGNUP_DATA)
 async def test_invalid_signup(
-        async_test_client: AsyncClient,
-        login_data: dict[str, str],
-        expected_code: int,
+    async_test_client: AsyncClient,
+    login_data: dict[str, str],
+    expected_code: int,
 ):
     response = await async_test_client.post(
         f"{AUTH_API_V1}/signup/", json=login_data
@@ -41,10 +42,10 @@ async def test_invalid_signup(
 
 
 @pytest.mark.asyncio
-async def test_login(async_test_client: AsyncClient, test_user: User):
+async def test_login(async_test_client: AsyncClient, test_users: None):
     login_data = {
-        "email": "test_email@gmail.com",
-        "password": "Test_password22",
+        "email": TEST_USER_EMAIL,
+        "password": TEST_USER_PASSWORD,
     }
     response = await async_test_client.post(
         f"{AUTH_API_V1}/login/", json=login_data
@@ -60,7 +61,7 @@ async def test_login(async_test_client: AsyncClient, test_user: User):
 @pytest.mark.asyncio
 async def test_invalid_password_login(async_test_client: AsyncClient):
     login_post_data = {
-        "email": "test_email@gmail.com",
+        "email": TEST_USER_EMAIL,
         "password": "Wrong_password22",
     }
     response = await async_test_client.post(
@@ -73,11 +74,11 @@ async def test_invalid_password_login(async_test_client: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_in_active_user_login(
-        async_test_client: AsyncClient, test_user: User
+    async_test_client: AsyncClient, test_users: None
 ):
     login_post_data = {
-        "email": "test_in_active_user@gmail.com",
-        "password": "Test_password22",
+        "email": TEST_IN_ACTIVE_USER_EMAIL,
+        "password": TEST_USER_PASSWORD,
     }
     response = await async_test_client.post(
         f"{AUTH_API_V1}/login/", json=login_post_data
