@@ -15,6 +15,10 @@ from src.db.models import User
 from src.db.session import get_async_pool, s
 from src.settings import DbSettings
 
+TEST_USER_WITH_BALANCE_EMAIL = "user_with_balance@gmail.com"
+TEST_USER_PASSWORD = "Test_password22"
+TEST_USER_BALANCE = 200
+
 
 @pytest_asyncio.fixture()
 async def test_user_with_balance(connect_db) -> AsyncGenerator[User, None]:
@@ -23,9 +27,9 @@ async def test_user_with_balance(connect_db) -> AsyncGenerator[User, None]:
     s.user_db = ses()
 
     user_with_balance = User(
-        email="user_with_balance@gmail.com",
-        password=hash_password("Test_password22"),
-        balance=200,
+        email=TEST_USER_WITH_BALANCE_EMAIL,
+        password=hash_password(TEST_USER_PASSWORD),
+        balance=TEST_USER_BALANCE,
     )
 
     s.user_db.add(user_with_balance)
@@ -50,7 +54,9 @@ async def async_test_balance_client(
 
     def override_get_current_user():
         """Overridden get_current_user dependency which return test user"""
-        return test_user_with_balance
+        test_user = test_user_with_balance
+        s.user_db.add(test_user)
+        return test_user
 
     my_app.dependency_overrides[get_current_user] = override_get_current_user
 

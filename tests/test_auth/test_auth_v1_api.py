@@ -1,9 +1,13 @@
+from sqlalchemy import select
+
 import pytest
 from httpx import AsyncClient
 
 from src.api.v1.auth.utils.my_jwt import decode_jwt
 from src.db.models import User
+from src.db.session import s
 from tests.test_auth.conftest import (
+    MOCK_USER_EMAIL,
     TEST_IN_ACTIVE_USER_EMAIL,
     TEST_USER_EMAIL,
     TEST_USER_PASSWORD,
@@ -172,3 +176,11 @@ async def test_deactivate_user(
 
     assert response.status_code == 200
     assert response.json()["is_active"] is False
+
+    mock_user = await s.user_db.scalar(
+        select(User).filter(User.email == MOCK_USER_EMAIL)
+    )
+    assert mock_user
+    assert mock_user.is_active is False
+    print(mock_user, mock_user.__dict__)
+    assert False
