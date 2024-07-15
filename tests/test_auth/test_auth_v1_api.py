@@ -182,5 +182,3 @@ async def test_deactivate_user(
     )
     assert mock_user
     assert mock_user.is_active is False
-    print(mock_user, mock_user.__dict__)
-    assert False
