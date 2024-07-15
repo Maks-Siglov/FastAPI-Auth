@@ -4,12 +4,12 @@ from starlette import status
 
 from src.api.exceptions import (
     insufficient_balance_error,
-    negative_balance_error
+    negative_balance_error,
 )
 from src.api.v1.auth.dependencies import get_current_user
 from src.api.v1.balance.crud import decrease_balance, increase_balance
 from src.api.v1.balance.dependencies import get_user_balance
-from src.api.v1.balance.models import AmountSchema, UserBalanceSchema
+from src.api.v1.balance.models.balance import AmountSchema, UserBalanceSchema
 from src.db.models import User
 
 router = APIRouter(prefix="/balance", tags=["balance"])

@@ -1,5 +1,5 @@
 import json
-from typing import Any
+from typing import Any, AsyncGenerator
 
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
@@ -11,15 +11,20 @@ from src.api.exceptions import (
     invalid_token_credential_exception,
     invalid_token_exception,
     invalid_token_type_exception,
-    revoked_token_error
+    revoked_token_error,
 )
 from src.api.v1.auth.crud import get_user_by_email
 from src.api.v1.auth.utils.my_jwt import validate_token_type
 from src.db.models import User
-from src.redis_config import get_redis_client
-from src.settings import JWTSettings
+from src.settings import JWTSettings, RedisSettings
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login/")
+
+
+async def get_redis_client() -> AsyncGenerator[Redis, None]:
+    redis_client = Redis(host=RedisSettings.host, port=RedisSettings.port)
+    yield redis_client
+    await redis_client.aclose()
 
 
 async def get_token_payload(
@@ -34,7 +39,6 @@ async def get_token_payload(
 async def get_current_user(
     token_payload: dict[str, Any] = Depends(get_token_payload),
 ) -> User:
-
     if (email := token_payload.get("sub")) is None:
         raise invalid_token_exception
 
