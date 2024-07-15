@@ -37,7 +37,7 @@ async def async_test_admin_client(
 
 
 @pytest_asyncio.fixture()
-async def test_admin_user(connect_db) -> None:
+async def test_admin_user(connect_db) -> User:
     current_pool = await get_async_pool(DbSettings.get_async_db_url())
     ses = async_scoped_session(current_pool.maker, scopefunc=current_task)
     s.user_db = ses()
@@ -46,6 +46,8 @@ async def test_admin_user(connect_db) -> None:
         email="test_admin_user@gmail.com",
         password=hash_password("Test_password22"),
         role="admin",
+        first_name="John",
+        last_name="Doe",
     )
 
     s.user_db.add(test_admin_user)
@@ -53,3 +55,5 @@ async def test_admin_user(connect_db) -> None:
 
     await s.user_db.close()
     await ses.remove()
+
+    return test_admin_user

@@ -26,6 +26,10 @@ class UserSchema(BaseUserSchema):
 class UserResponseSchema(UserSchema):
     model_config = ConfigDict(from_attributes=True)
 
+    first_name: str = Field(description="First name of the user.")
+    last_name: str = Field(description="Last name of the user.")
+    balance: int = Field(description="Balance of the user.")
+
     created_at: datetime = Field(description="The date the user was created.")
     updated_at: datetime = Field(
         description="The date the user was last updated."

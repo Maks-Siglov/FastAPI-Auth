@@ -12,6 +12,9 @@ class User(Base):
     email: Mapped[str] = mapped_column(unique=True)
     password: Mapped[str] = mapped_column()
 
+    first_name: Mapped[str] = mapped_column(nullable=True)
+    last_name: Mapped[str] = mapped_column(nullable=True)
+
     role: Mapped[str] = mapped_column(default="user")
     balance: Mapped[int] = mapped_column(default=0)
 
