@@ -3,6 +3,7 @@ from sqlalchemy import select
 import pytest
 from httpx import AsyncClient
 
+from src.api.v1.balance.models.balance import UserBalanceSchema
 from src.db.models import User
 from src.db.session import s
 from tests.test_balance.conftest import TEST_USER_WITH_BALANCE_EMAIL
@@ -18,7 +19,9 @@ async def test_get_balance(
 
     assert response.status_code == 200
 
-    assert response.json() == {
+    response_data = response.json()
+    assert UserBalanceSchema(**response_data)
+    assert response_data == {
         "user_id": test_user_with_balance.id,
         "balance": test_user_with_balance.balance,
     }
@@ -37,7 +40,9 @@ async def test_deposit_balance(
 
     assert response.status_code == 200
 
-    assert response.json() == {
+    response_data = response.json()
+    assert UserBalanceSchema(**response_data)
+    assert response_data == {
         "user_id": test_user_with_balance.id,
         "balance": initial_balance + deposit_post_data["amount"],
     }
@@ -63,7 +68,9 @@ async def test_withdraw_balance(
 
     assert response.status_code == 200
 
-    assert response.json() == {
+    response_data = response.json()
+    assert UserBalanceSchema(**response_data)
+    assert response_data == {
         "user_id": test_user_with_balance.id,
         "balance": initial_balance - deposit_post_data["amount"],
     }

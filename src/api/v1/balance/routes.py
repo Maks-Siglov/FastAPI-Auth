@@ -65,7 +65,7 @@ async def deposit_balance(
 async def withdraw_balance(
     amount_schema: AmountSchema,
     user: User = Depends(get_current_user),
-):
+) -> UserBalanceSchema:
     if user.balance < amount_schema.amount:
         raise insufficient_balance_error
 

@@ -36,7 +36,6 @@ from src.api.v1.users.models.user import (
     UserCreationSchema,
     UserLoginSchema,
     UserResponseSchema,
-    UserSchema,
 )
 from src.api.v1.users.utils.my_jwt import (
     create_access_token,
@@ -53,19 +52,19 @@ router = APIRouter(prefix="/users", tags=["users"])
     "/signup/",
     status_code=status.HTTP_201_CREATED,
     responses={
-        status.HTTP_201_CREATED: {"model": UserSchema},
+        status.HTTP_201_CREATED: {"model": UserResponseSchema},
         status.HTTP_422_UNPROCESSABLE_ENTITY: {
             "description": repeat_email_exception.detail
         },
     },
 )
-async def signup(payload: UserCreationSchema) -> UserSchema:
+async def signup(payload: UserCreationSchema) -> UserResponseSchema:
     if (user := await get_user_by_email(email=payload.email)) is not None:
         if user.is_active:
             raise repeat_email_exception
 
         await activate_user(user)
-        return UserSchema.model_validate(user)
+        return UserResponseSchema.model_validate(user)
 
     payload.password = hash_password(payload.password)
     return await create_user(user_data=payload)
@@ -139,13 +138,13 @@ async def refresh_access_token(
 @router.post(
     "/deactivate/",
     status_code=status.HTTP_200_OK,
-    responses={status.HTTP_200_OK: {"model": UserSchema}},
+    responses={status.HTTP_200_OK: {"model": UserResponseSchema}},
 )
 async def deactivate_user(
     user: User = Depends(get_current_user),
-) -> UserSchema:
+) -> UserResponseSchema:
     await deactivate_my_user(user)
-    return UserSchema.model_validate(user)
+    return UserResponseSchema.model_validate(user)
 
 
 @router.get(
@@ -164,7 +163,7 @@ async def get_user(
     "/change-password/",
     status_code=status.HTTP_200_OK,
     responses={
-        status.HTTP_200_OK: {"model": UserSchema},
+        status.HTTP_200_OK: {"model": UserResponseSchema},
         status.HTTP_401_UNAUTHORIZED: {
             "description": credential_exceptions.detail
         },
@@ -173,10 +172,10 @@ async def get_user(
 async def change_password(
     payload: ChangePasswordSchema,
     user: User = Depends(get_current_user),
-) -> UserSchema:
+) -> UserResponseSchema:
     if not verify_password(payload.old_password, user.password):
         raise credential_exceptions
 
     new_password = hash_password(payload.new_password)
     await change_user_password(user, new_password)
-    return UserSchema.model_validate(user)
+    return UserResponseSchema.model_validate(user)

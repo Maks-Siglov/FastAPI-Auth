@@ -15,24 +15,24 @@ class UserLoginSchema(BaseUserSchema):
 
 
 class UserSchema(BaseUserSchema):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: int
-    is_active: bool = Field(
-        default=True, description="Whether the user is active."
-    )
+    first_name: str = Field(description="First name of the user.")
+    last_name: str = Field(description="Last name of the user.")
 
 
 class UserResponseSchema(UserSchema):
     model_config = ConfigDict(from_attributes=True)
 
-    first_name: str = Field(description="First name of the user.")
-    last_name: str = Field(description="Last name of the user.")
+    id: int
+
     balance: int = Field(description="Balance of the user.")
 
     created_at: datetime = Field(description="The date the user was created.")
     updated_at: datetime = Field(
         description="The date the user was last updated."
+    )
+
+    is_active: bool = Field(
+        default=True, description="Whether the user is active."
     )
 
 
@@ -42,7 +42,7 @@ class UsersResponseSchema(BaseModel):
     users: list[UserResponseSchema] | list
 
 
-class UserCreationSchema(BaseUserSchema):
+class UserCreationSchema(UserSchema):
     password: str = Field(
         description="Password for the user account (8-24 characters, "
         "containing at least one digit, uppercase letter, lowercase letter, "

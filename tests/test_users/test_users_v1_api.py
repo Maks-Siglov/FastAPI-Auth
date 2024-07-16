@@ -3,6 +3,11 @@ from sqlalchemy import select
 import pytest
 from httpx import AsyncClient
 
+from src.api.v1.users.models.token import (
+    AccessTokenSchema,
+    RevokedAccessTokenSchema,
+    TokenSchema,
+)
 from src.api.v1.users.models.user import UserResponseSchema
 from src.api.v1.users.utils.my_jwt import decode_jwt
 from src.api.v1.users.utils.password import verify_password
@@ -23,11 +28,14 @@ async def test_signup(async_test_client: AsyncClient):
     signup_post_data = {
         "email": "new_user@gmail.com",
         "password": TEST_USER_PASSWORD,
+        "first_name": "Test_name",
+        "last_name": "Test_last_name",
     }
     response = await async_test_client.post(
         f"{USERS_API_V1}/signup/", json=signup_post_data
     )
     assert response.status_code == 201
+    assert UserResponseSchema.model_validate(response.json())
 
 
 INVALID_SIGNUP_DATA = [
@@ -64,9 +72,7 @@ async def test_login(async_test_client: AsyncClient, test_users: None):
 
     assert response.status_code == 200
 
-    response_data = response.json()
-    assert "access_token" in response_data
-    assert "refresh_token" in response_data
+    assert TokenSchema(**response.json())
 
 
 @pytest.mark.asyncio
@@ -109,9 +115,11 @@ async def test_logout(
 
     assert response.status_code == 200
 
-    assert response.json()["revoked"]
+    response_data = response.json()
+    assert RevokedAccessTokenSchema(**response_data)
+    assert response_data["revoked"]
 
-    revoked_token = response.json()["access_token"]
+    revoked_token = response_data["access_token"]
     token_bytes = revoked_token.encode("utf-8")
 
     assert decode_jwt(token_bytes)["token_revoked"]
@@ -125,7 +133,7 @@ async def test_refresh(
     response = await async_test_client.post(f"{USERS_API_V1}/refresh/")
 
     assert response.status_code == 201
-    assert response.json()["access_token"]
+    assert AccessTokenSchema(**response.json())
 
 
 @pytest.mark.asyncio
@@ -138,7 +146,10 @@ async def test_deactivate_user(
     response = await async_test_client.post(f"{USERS_API_V1}/deactivate/")
 
     assert response.status_code == 200
-    assert response.json()["is_active"] is False
+
+    response_data = response.json()
+    assert UserResponseSchema.model_validate(response_data)
+    assert response_data["is_active"] is False
 
     mock_user = await s.user_db.scalar(
         select(User).filter(User.email == MOCK_USER_EMAIL)
@@ -204,6 +215,7 @@ async def test_change_password(
     )
 
     assert response.status_code == 200
+    assert UserResponseSchema.model_validate(response.json())
 
     test_user = await s.user_db.scalar(
         select(User).filter(User.email == MOCK_USER_EMAIL)
