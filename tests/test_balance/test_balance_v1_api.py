@@ -31,7 +31,7 @@ async def test_deposit_balance(
     initial_balance = test_user_with_balance.balance
     deposit_post_data = {"amount": 200}
 
-    response = await async_test_balance_client.post(
+    response = await async_test_balance_client.patch(
         f"{BALANCE_API_V1}/deposit/", json=deposit_post_data
     )
 
@@ -57,7 +57,7 @@ async def test_withdraw_balance(
     initial_balance = test_user_with_balance.balance
     deposit_post_data = {"amount": 200}
 
-    response = await async_test_balance_client.post(
+    response = await async_test_balance_client.patch(
         f"{BALANCE_API_V1}/withdraw/", json=deposit_post_data
     )
 
@@ -83,7 +83,7 @@ async def test_wrong_withdraw_balance(
     initial_balance = test_user_with_balance.balance
     withdraw_post_data = {"amount": 400}
 
-    response = await async_test_balance_client.post(
+    response = await async_test_balance_client.patch(
         f"{BALANCE_API_V1}/withdraw/", json=withdraw_post_data
     )
 

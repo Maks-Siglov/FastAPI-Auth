@@ -13,12 +13,12 @@ from src.api.exceptions import (
     invalid_token_type_exception,
     revoked_token_error,
 )
-from src.api.v1.auth.crud import get_user_by_email
-from src.api.v1.auth.utils.my_jwt import validate_token_type
+from src.api.v1.users.crud import get_user_by_email
+from src.api.v1.users.utils.my_jwt import validate_token_type
 from src.db.models import User
 from src.settings import JWTSettings, RedisSettings
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login/")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login/")
 
 
 async def get_redis_client() -> AsyncGenerator[Redis, None]:

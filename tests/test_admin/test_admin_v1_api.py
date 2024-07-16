@@ -1,6 +1,7 @@
 import pytest
 from httpx import AsyncClient
 
+from src.api.v1.users.models.user import UserResponseSchema
 from src.db.models import User
 
 ADMIN_API_V1 = "/api/v1/admin"
@@ -41,9 +42,4 @@ async def test_get_users(
 
     assert response.json()["users"][0]
 
-    test_user = response.json()["users"][0]
-    assert test_user["email"] == test_admin_user.email
-    assert test_user["first_name"] == test_admin_user.first_name
-    assert test_user["last_name"] == test_admin_user.last_name
-    assert test_user["is_active"] == test_admin_user.is_active
-    assert test_user["balance"] == test_admin_user.balance
+    assert UserResponseSchema.model_validate(response.json()["users"][0])

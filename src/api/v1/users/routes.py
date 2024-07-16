@@ -13,44 +13,44 @@ from src.api.exceptions import (
     not_active_user_exception,
     repeat_email_exception,
 )
-from src.api.v1.auth.crud import (
+from src.api.v1.users.crud import (
     activate_user,
     change_user_password,
     create_user,
     deactivate_my_user,
     get_user_by_email,
 )
-from src.api.v1.auth.dependencies import (
+from src.api.v1.users.dependencies import (
     get_current_user,
     get_redis_client,
     get_token_payload,
     get_user_from_refresh_token,
 )
-from src.api.v1.auth.models.token import (
+from src.api.v1.users.models.token import (
     AccessTokenSchema,
     RevokedAccessTokenSchema,
     TokenSchema,
 )
-from src.api.v1.auth.models.user import (
+from src.api.v1.users.models.user import (
     ChangePasswordSchema,
     UserCreationSchema,
     UserLoginSchema,
+    UserResponseSchema,
     UserSchema,
 )
-from src.api.v1.auth.utils.my_jwt import (
+from src.api.v1.users.utils.my_jwt import (
     create_access_token,
     create_refresh_token,
     revoke_jwt,
 )
-from src.api.v1.auth.utils.password import hash_password, verify_password
+from src.api.v1.users.utils.password import hash_password, verify_password
 from src.db.models import User
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(prefix="/users", tags=["users"])
 
 
 @router.post(
     "/signup/",
-    response_model=None,
     status_code=status.HTTP_201_CREATED,
     responses={
         status.HTTP_201_CREATED: {"model": UserSchema},
@@ -73,7 +73,6 @@ async def signup(payload: UserCreationSchema) -> UserSchema:
 
 @router.post(
     "/login/",
-    response_model=None,
     status_code=status.HTTP_200_OK,
     responses={
         status.HTTP_200_OK: {"model": TokenSchema},
@@ -114,8 +113,55 @@ async def login(
 
 
 @router.post(
+    "/logout/",
+    status_code=status.HTTP_200_OK,
+    responses={status.HTTP_200_OK: {"model": RevokedAccessTokenSchema}},
+)
+async def logout(
+    payload: dict[str, Any] = Depends(get_token_payload),
+) -> RevokedAccessTokenSchema:
+    revoked_token = revoke_jwt(payload)
+    return RevokedAccessTokenSchema(access_token=revoked_token)
+
+
+@router.post(
+    "/refresh/",
+    status_code=status.HTTP_201_CREATED,
+    responses={status.HTTP_201_CREATED: {"model": AccessTokenSchema}},
+)
+async def refresh_access_token(
+    user: User = Depends(get_user_from_refresh_token),
+) -> AccessTokenSchema:
+    access_token, _ = create_access_token(user)
+    return AccessTokenSchema(access_token=access_token)
+
+
+@router.post(
+    "/deactivate/",
+    status_code=status.HTTP_200_OK,
+    responses={status.HTTP_200_OK: {"model": UserSchema}},
+)
+async def deactivate_user(
+    user: User = Depends(get_current_user),
+) -> UserSchema:
+    await deactivate_my_user(user)
+    return UserSchema.model_validate(user)
+
+
+@router.get(
+    path="/me/",
+    response_model=UserResponseSchema,
+    status_code=status.HTTP_200_OK,
+    responses={status.HTTP_200_OK: {"model": UserResponseSchema}},
+)
+async def get_user(
+    user: User = Depends(get_current_user),
+) -> UserResponseSchema:
+    return UserResponseSchema.model_validate(user)
+
+
+@router.post(
     "/change-password/",
-    response_model=None,
     status_code=status.HTTP_200_OK,
     responses={
         status.HTTP_200_OK: {"model": UserSchema},
@@ -133,43 +179,4 @@ async def change_password(
 
     new_password = hash_password(payload.new_password)
     await change_user_password(user, new_password)
-    return UserSchema.model_validate(user)
-
-
-@router.post(
-    "/logout/",
-    response_model=None,
-    status_code=status.HTTP_200_OK,
-    responses={status.HTTP_200_OK: {"model": RevokedAccessTokenSchema}},
-)
-async def logout(
-    payload: dict[str, Any] = Depends(get_token_payload),
-) -> RevokedAccessTokenSchema:
-    revoked_token = revoke_jwt(payload)
-    return RevokedAccessTokenSchema(access_token=revoked_token)
-
-
-@router.post(
-    "/refresh/",
-    response_model=None,
-    status_code=status.HTTP_201_CREATED,
-    responses={status.HTTP_201_CREATED: {"model": AccessTokenSchema}},
-)
-async def refresh_access_token(
-    user: User = Depends(get_user_from_refresh_token),
-) -> AccessTokenSchema:
-    access_token, _ = create_access_token(user)
-    return AccessTokenSchema(access_token=access_token)
-
-
-@router.post(
-    "/deactivate/",
-    response_model=None,
-    status_code=status.HTTP_200_OK,
-    responses={status.HTTP_200_OK: {"model": UserSchema}},
-)
-async def deactivate_user(
-    user: User = Depends(get_current_user),
-) -> UserSchema:
-    await deactivate_my_user(user)
     return UserSchema.model_validate(user)

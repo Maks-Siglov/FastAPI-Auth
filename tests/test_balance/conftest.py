@@ -9,8 +9,8 @@ import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 
 from src.api.routers import api_router_v1
-from src.api.v1.auth.dependencies import get_current_user
-from src.api.v1.auth.utils.password import hash_password
+from src.api.v1.users.dependencies import get_current_user
+from src.api.v1.users.utils.password import hash_password
 from src.db.models import User
 from src.db.session import get_async_pool, s
 from src.settings import DbSettings

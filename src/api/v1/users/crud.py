@@ -1,6 +1,6 @@
 from sqlalchemy import select
 
-from src.api.v1.auth.models.user import UserCreationSchema, UserSchema
+from src.api.v1.users.models.user import UserCreationSchema, UserSchema
 from src.db.models import User
 from src.db.session import s
 

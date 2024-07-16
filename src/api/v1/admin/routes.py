@@ -5,7 +5,10 @@ from starlette import status
 from src.api.v1.admin.crud import filtered_users
 from src.api.v1.admin.dependencies import check_admin_role
 from src.api.v1.admin.models.admin_query_params import AdminQueryParams
-from src.api.v1.auth.models.user import UserResponseSchema, UsersResponseSchema
+from src.api.v1.users.models.user import (
+    UserResponseSchema,
+    UsersResponseSchema,
+)
 
 router = APIRouter(
     prefix="/admin",
