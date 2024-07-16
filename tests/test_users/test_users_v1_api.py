@@ -72,7 +72,7 @@ async def test_login(async_test_client: AsyncClient, test_users: None):
 
     assert response.status_code == 200
 
-    assert TokenSchema(**response.json())
+    assert TokenSchema.model_validate(response.json())
 
 
 @pytest.mark.asyncio
@@ -116,7 +116,7 @@ async def test_logout(
     assert response.status_code == 200
 
     response_data = response.json()
-    assert RevokedAccessTokenSchema(**response_data)
+    assert RevokedAccessTokenSchema.model_validate(response_data)
     assert response_data["revoked"]
 
     revoked_token = response_data["access_token"]
@@ -130,7 +130,7 @@ async def test_refresh(async_test_client: AsyncClient):
     response = await async_test_client.post(f"{USERS_API_V1}/refresh/")
 
     assert response.status_code == 201
-    assert AccessTokenSchema(**response.json())
+    assert AccessTokenSchema.model_validate(response.json())
 
 
 @pytest.mark.asyncio
