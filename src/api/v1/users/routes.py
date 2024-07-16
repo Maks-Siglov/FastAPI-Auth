@@ -18,6 +18,7 @@ from src.api.v1.users.crud import (
     change_user_password,
     create_user,
     deactivate_my_user,
+    edit_user,
     get_user_by_email,
 )
 from src.api.v1.users.dependencies import (
@@ -36,6 +37,7 @@ from src.api.v1.users.models.user import (
     UserCreationSchema,
     UserLoginSchema,
     UserResponseSchema,
+    UserSchema,
 )
 from src.api.v1.users.utils.my_jwt import (
     create_access_token,
@@ -149,7 +151,6 @@ async def deactivate_user(
 
 @router.get(
     path="/me/",
-    response_model=UserResponseSchema,
     status_code=status.HTTP_200_OK,
     responses={status.HTTP_200_OK: {"model": UserResponseSchema}},
 )
@@ -159,7 +160,7 @@ async def get_user(
     return UserResponseSchema.model_validate(user)
 
 
-@router.post(
+@router.patch(
     "/change-password/",
     status_code=status.HTTP_200_OK,
     responses={
@@ -178,4 +179,17 @@ async def change_password(
 
     new_password = hash_password(payload.new_password)
     await change_user_password(user, new_password)
+    return UserResponseSchema.model_validate(user)
+
+
+@router.put(
+    path="/update/",
+    status_code=status.HTTP_200_OK,
+    responses={status.HTTP_200_OK: {"model": UserResponseSchema}},
+)
+async def update_user(
+    payload: UserSchema,
+    user: User = Depends(get_current_user),
+) -> UserResponseSchema:
+    await edit_user(user, payload.model_dump(exclude_none=True))
     return UserResponseSchema.model_validate(user)

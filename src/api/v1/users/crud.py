@@ -38,3 +38,13 @@ async def get_user_by_email(email: str) -> User | None:
 
 async def get_user(user_id: int) -> User | None:
     return await s.user_db.get(User, user_id)
+
+
+async def edit_user(user: User, edited_data: dict[str, str]) -> User:
+    for field, value in edited_data.items():
+        if hasattr(user, field):
+            setattr(user, field, value)
+
+    await s.user_db.commit()
+    await s.user_db.refresh(user)
+    return user

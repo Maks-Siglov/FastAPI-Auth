@@ -126,10 +126,7 @@ async def test_logout(
 
 
 @pytest.mark.asyncio
-async def test_refresh(
-    async_test_client: AsyncClient, test_access_token: str | None
-):
-    async_test_client.headers["Authorization"] = f"Bearer {test_access_token}"
+async def test_refresh(async_test_client: AsyncClient):
     response = await async_test_client.post(f"{USERS_API_V1}/refresh/")
 
     assert response.status_code == 201
@@ -138,11 +135,8 @@ async def test_refresh(
 
 @pytest.mark.asyncio
 async def test_deactivate_user(
-    async_test_client: AsyncClient,
-    test_access_token: str | None,
-    test_mock_user: User,
+    async_test_client: AsyncClient, test_mock_user: User
 ):
-    async_test_client.headers["Authorization"] = f"Bearer {test_access_token}"
     response = await async_test_client.post(f"{USERS_API_V1}/deactivate/")
 
     assert response.status_code == 200
@@ -184,13 +178,10 @@ wrong_change_password_data = [
 )
 async def test_fail_change_password(
     async_test_client: AsyncClient,
-    test_access_token: str | None,
     wrong_data: dict,
     expected_status: int,
 ):
-    async_test_client.headers["Authorization"] = f"Bearer {test_access_token}"
-
-    response = await async_test_client.post(
+    response = await async_test_client.patch(
         f"{USERS_API_V1}/change-password/", json=wrong_data
     )
 
@@ -198,19 +189,14 @@ async def test_fail_change_password(
 
 
 @pytest.mark.asyncio
-async def test_change_password(
-    async_test_client: AsyncClient,
-    test_access_token: str | None,
-):
-    async_test_client.headers["Authorization"] = f"Bearer {test_access_token}"
-
+async def test_change_password(async_test_client: AsyncClient):
     test_change_password_data = {
         "old_password": TEST_USER_PASSWORD,
         "new_password": "New_password22",
         "new_password_confirm": "New_password22",
     }
 
-    response = await async_test_client.post(
+    response = await async_test_client.patch(
         f"{USERS_API_V1}/change-password/", json=test_change_password_data
     )
 
@@ -232,3 +218,27 @@ async def test_get_user(async_test_client: AsyncClient):
     response = await async_test_client.get(f"{USERS_API_V1}/me/")
     assert response.status_code == 200
     assert UserResponseSchema.model_validate(response.json())
+
+
+async def test_update_user(async_test_client: AsyncClient):
+    test_update_data = {
+        "email": "new_email@gmail.com",
+        "first_name": "New First Name",
+        "last_name": "New Last Name",
+    }
+
+    response = await async_test_client.put(
+        f"{USERS_API_V1}/update/", json=test_update_data
+    )
+
+    assert response.status_code == 200
+
+    assert UserResponseSchema.model_validate(response.json())
+
+    test_updated_user = await s.user_db.scalar(
+        select(User).filter(User.email == test_update_data["email"])
+    )
+    assert test_updated_user
+    assert test_updated_user.email == "new_email@gmail.com"
+    assert test_updated_user.first_name == "New First Name"
+    assert test_updated_user.last_name == "New Last Name"
