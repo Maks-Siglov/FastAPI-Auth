@@ -1,6 +1,7 @@
 import pytest
 from httpx import AsyncClient
 
+from src.api.v1.users.models.user import UserResponseSchema
 from src.db.models import User
 
 ADMIN_API_V1 = "/api/v1/admin"
@@ -8,10 +9,16 @@ ADMIN_API_V1 = "/api/v1/admin"
 
 query_params_with_expected_code = [
     ({"user_id": 1}, 200),
-    ({"email": "test_email@gmail.com"}, 200),
+    ({"email": "test_admin_user@gmail.com"}, 200),
+    ({"first_name": "John"}, 200),
+    ({"last_name": "Doe"}, 200),
     ({"is_active": True}, 200),
-    ({"order_by": "created_at", "desc": True}, 200),
-    ({"order_by": "is_active"}, 200),
+    ({"order_by": "id", "order_type": "asc"}, 200),
+    ({"order_by": "id", "order_type": "desc"}, 200),
+    ({"order_by": "balance", "order_type": "asc"}, 200),
+    ({"order_by": "balance", "order_type": "desc"}, 200),
+    ({"order_by": "updated_at", "order_type": "asc"}, 200),
+    ({"order_by": "updated_at", "order_type": "desc"}, 200),
     ({}, 200),
 ]
 
@@ -32,3 +39,7 @@ async def test_get_users(
     )
 
     assert response.status_code == expected_status
+
+    assert response.json()["users"][0]
+
+    assert UserResponseSchema.model_validate(response.json()["users"][0])

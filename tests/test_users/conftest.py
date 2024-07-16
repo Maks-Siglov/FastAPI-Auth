@@ -9,23 +9,23 @@ import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 
 from src.api.routers import api_router_v1
-from src.api.v1.auth.dependencies import (
+from src.api.v1.users.dependencies import (
     get_current_user,
     get_redis_client,
     get_user_from_refresh_token,
 )
-from src.api.v1.auth.utils.password import hash_password
+from src.api.v1.users.utils.password import hash_password
 from src.db.models import User
 from src.db.session import get_async_pool, s
 from src.settings import DbSettings
-from tests.test_auth.mock import get_mock_redis_client
+from tests.test_users.mock import get_mock_redis_client
 
 TEST_USER_EMAIL = "test_email@gmail.com"
 TEST_IN_ACTIVE_USER_EMAIL = "test_in_active_user@gmail.com"
 MOCK_USER_EMAIL = "mock_user@gmail.com"
 TEST_USER_PASSWORD = "Test_password22"
 
-AUTH_API_V1 = "/api/v1/auth"
+USERS_API_V1 = "/api/v1/users"
 
 
 @pytest_asyncio.fixture()
@@ -35,7 +35,10 @@ async def test_mock_user(connect_db) -> AsyncGenerator[User, None]:
     s.user_db = ses()
 
     mock_user = User(
-        email=MOCK_USER_EMAIL, password=hash_password(TEST_USER_PASSWORD)
+        email=MOCK_USER_EMAIL,
+        password=hash_password(TEST_USER_PASSWORD),
+        first_name="Test_name",
+        last_name="Test_last_name",
     )
 
     s.user_db.add(mock_user)
@@ -107,7 +110,7 @@ async def test_access_token(
         "password": TEST_USER_PASSWORD,
     }
     response = await async_test_client.post(
-        f"{AUTH_API_V1}/login/", json=login_data
+        f"{USERS_API_V1}/login/", json=login_data
     )
 
     return response.json().get("access_token")

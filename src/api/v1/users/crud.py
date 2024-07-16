@@ -1,16 +1,16 @@
 from sqlalchemy import select
 
-from src.api.v1.auth.models.user import UserCreationSchema, UserSchema
+from src.api.v1.users.models.user import UserCreationSchema, UserResponseSchema
 from src.db.models import User
 from src.db.session import s
 
 
-async def create_user(user_data: UserCreationSchema) -> UserSchema:
+async def create_user(user_data: UserCreationSchema) -> UserResponseSchema:
     db_user = User(**user_data.model_dump())
     s.user_db.add(db_user)
     await s.user_db.commit()
     await s.user_db.refresh(db_user)
-    return UserSchema.model_validate(db_user)
+    return UserResponseSchema.model_validate(db_user)
 
 
 async def activate_user(user: User) -> None:
@@ -38,3 +38,13 @@ async def get_user_by_email(email: str) -> User | None:
 
 async def get_user(user_id: int) -> User | None:
     return await s.user_db.get(User, user_id)
+
+
+async def edit_user(user: User, edited_data: dict[str, str]) -> User:
+    for field, value in edited_data.items():
+        if hasattr(user, field):
+            setattr(user, field, value)
+
+    await s.user_db.commit()
+    await s.user_db.refresh(user)
+    return user
