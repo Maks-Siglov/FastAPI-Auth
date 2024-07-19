@@ -9,9 +9,9 @@ from redis.asyncio import Redis
 from starlette import status
 
 from src.api.exceptions import (
-    credential_exceptions,
-    not_active_user_exception,
-    repeat_email_exception,
+    CREDENTIAL_EXCEPTIONS,
+    NOT_ACTIVE_USER_EXCEPTION,
+    REPEAT_EMAIL_EXCEPTION,
 )
 from src.api.v1.users.crud import (
     activate_user,
@@ -56,14 +56,14 @@ router = APIRouter(prefix="/users", tags=["users"])
     responses={
         status.HTTP_201_CREATED: {"model": UserResponseSchema},
         status.HTTP_422_UNPROCESSABLE_ENTITY: {
-            "description": repeat_email_exception.detail
+            "description": REPEAT_EMAIL_EXCEPTION.detail
         },
     },
 )
 async def signup(payload: UserCreationSchema) -> UserResponseSchema:
     if (user := await get_user_by_email(email=payload.email)) is not None:
         if user.is_active:
-            raise repeat_email_exception
+            raise REPEAT_EMAIL_EXCEPTION
 
         await activate_user(user)
         return UserResponseSchema.model_validate(user)
@@ -88,10 +88,10 @@ async def login(
 ) -> TokenSchema:
     user = await get_user_by_email(email=payload.email)
     if user is None or not verify_password(payload.password, user.password):
-        raise credential_exceptions
+        raise CREDENTIAL_EXCEPTIONS
 
     if not user.is_active:
-        raise not_active_user_exception
+        raise NOT_ACTIVE_USER_EXCEPTION
 
     access_token, access_payload = create_access_token(user)
     refresh_token, refresh_payload = create_refresh_token(user)
@@ -166,7 +166,7 @@ async def get_user(
     responses={
         status.HTTP_200_OK: {"model": UserResponseSchema},
         status.HTTP_401_UNAUTHORIZED: {
-            "description": credential_exceptions.detail
+            "description": CREDENTIAL_EXCEPTIONS.detail
         },
     },
 )
@@ -175,7 +175,7 @@ async def change_password(
     user: User = Depends(get_current_user),
 ) -> UserResponseSchema:
     if not verify_password(payload.old_password, user.password):
-        raise credential_exceptions
+        raise CREDENTIAL_EXCEPTIONS
 
     new_password = hash_password(payload.new_password)
     await change_user_password(user, new_password)
