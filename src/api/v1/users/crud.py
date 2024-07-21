@@ -36,7 +36,7 @@ async def get_user_by_email(email: str) -> User | None:
     return await s.user_db.scalar(query)
 
 
-async def get_user(user_id: int) -> User | None:
+async def get_user_by_id(user_id: int) -> User | None:
     return await s.user_db.get(User, user_id)
 
 
@@ -48,3 +48,15 @@ async def edit_user(user: User, edited_data: dict[str, str]) -> User:
     await s.user_db.commit()
     await s.user_db.refresh(user)
     return user
+
+
+async def block_my_user(user: User) -> None:
+    user.is_blocked = True
+    await s.user_db.commit()
+    await s.user_db.refresh(user)
+
+
+async def unblock_my_user(user: User) -> None:
+    user.is_blocked = False
+    await s.user_db.commit()
+    await s.user_db.refresh(user)

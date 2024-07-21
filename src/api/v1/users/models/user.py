@@ -84,3 +84,12 @@ class ChangePasswordSchema(BaseModel):
         ):
             raise ValueError("New passwords do not match")
         return password_field
+
+
+class BlockUserSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    is_blocked: bool = Field(
+        default=False, description="Whether the user is blocked."
+    )

@@ -1,4 +1,5 @@
 from fastapi import HTTPException
+
 from starlette import status
 
 CREDENTIAL_EXCEPTIONS = HTTPException(
@@ -9,6 +10,12 @@ CREDENTIAL_EXCEPTIONS = HTTPException(
 NOT_ACTIVE_USER_EXCEPTION = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
     detail="User is not active",
+)
+
+
+BLOCKED_USER_EXCEPTION = HTTPException(
+    status_code=status.HTTP_403_FORBIDDEN,
+    detail="User is blocked",
 )
 
 REPEAT_EMAIL_EXCEPTION = HTTPException(
@@ -65,4 +72,21 @@ INSUFFICIENT_BALANCE_ERROR = HTTPException(
 NOT_FOUND = HTTPException(
     status_code=status.HTTP_404_NOT_FOUND,
     detail="Not found",
+)
+
+ALREADY_BLOCKED_EXCEPTION = HTTPException(
+    status_code=status.HTTP_409_CONFLICT,
+    detail="User already blocked",
+)
+
+
+NOT_BLOCKED_EXCEPTION = HTTPException(
+    status_code=status.HTTP_409_CONFLICT,
+    detail="User not blocked",
+)
+
+
+ADMIN_BLOCK_ITSELF_EXCEPTION = HTTPException(
+    status_code=status.HTTP_409_CONFLICT,
+    detail="Admin cannot block itself",
 )
