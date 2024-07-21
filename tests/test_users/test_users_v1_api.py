@@ -3,6 +3,7 @@ from sqlalchemy import select
 import pytest
 from httpx import AsyncClient
 
+from src.api.exceptions import BLOCKED_USER_EXCEPTION
 from src.api.v1.users.models.token import (
     AccessTokenSchema,
     RevokedAccessTokenSchema,
@@ -103,6 +104,21 @@ async def test_in_active_user_login(
 
     assert response.status_code == 401
     assert response.json()["detail"] == "User is not active"
+
+
+@pytest.mark.asyncio
+async def test_blocked_user_login(
+    async_test_client: AsyncClient, test_blocked_user: User
+):
+    login_post_data = {
+        "email": TEST_USER_EMAIL,
+        "password": TEST_USER_PASSWORD,
+    }
+    response = await async_test_client.post(
+        f"{USERS_API_V1}/login/", json=login_post_data
+    )
+    assert response.status_code == BLOCKED_USER_EXCEPTION.status_code
+    assert response.json()["detail"] == BLOCKED_USER_EXCEPTION.detail
 
 
 @pytest.mark.asyncio

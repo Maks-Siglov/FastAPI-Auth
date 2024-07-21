@@ -94,7 +94,7 @@ async def login(
     if not user.is_active:
         raise NOT_ACTIVE_USER_EXCEPTION
 
-    if not user.is_blocked:
+    if user.is_blocked:
         raise BLOCKED_USER_EXCEPTION
 
     access_token, access_payload = create_access_token(user)

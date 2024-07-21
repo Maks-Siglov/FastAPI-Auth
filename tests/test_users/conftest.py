@@ -86,11 +86,16 @@ async def test_users(connect_db) -> None:
     s.user_db = ses()
 
     test_user = User(
-        email=TEST_USER_EMAIL, password=hash_password(TEST_USER_PASSWORD)
+        email=TEST_USER_EMAIL,
+        password=hash_password(TEST_USER_PASSWORD),
+        first_name="Test_name",
+        last_name="Test_last_name",
     )
     test_in_active_user = User(
         email=TEST_IN_ACTIVE_USER_EMAIL,
         password=hash_password(TEST_USER_PASSWORD),
+        first_name="Test_name",
+        last_name="Test_last_name",
         is_active=False,
     )
 
@@ -99,6 +104,29 @@ async def test_users(connect_db) -> None:
 
     await s.user_db.close()
     await ses.remove()
+
+
+@pytest_asyncio.fixture()
+async def test_blocked_user(connect_db) -> AsyncGenerator[User, None]:
+    current_pool = await get_async_pool(DbSettings.get_async_db_url())
+    ses = async_scoped_session(current_pool.maker, scopefunc=current_task)
+    s.user_db = ses()
+
+    my_test_blocked_user = User(
+        email=TEST_USER_EMAIL,
+        password=hash_password(TEST_USER_PASSWORD),
+        first_name="Test_name",
+        last_name="Test_last_name",
+        is_blocked=True,
+    )
+
+    s.user_db.add(my_test_blocked_user)
+    await s.user_db.commit()
+
+    await s.user_db.close()
+    await ses.remove()
+
+    yield my_test_blocked_user
 
 
 @pytest_asyncio.fixture()
