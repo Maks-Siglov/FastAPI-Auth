@@ -29,9 +29,9 @@ class User(Base):
 
     @validates("role", "balance")
     def validate_admin_balance(self, key, value):
-        if key == "role" and value == "admin" and self.balance != 0:
+        if key == "role" and value == "admin" and self.balance:
             raise ValueError("Admin users cannot have a balance.")
-        if key == "balance" and self.role == "admin" and value != 0:
+        if key == "balance" and self.role == "admin" and value:
             raise ValueError("Admin users cannot have a balance.")
         return value
 
