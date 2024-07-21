@@ -9,10 +9,10 @@ from redis.asyncio import Redis
 from starlette import status
 
 from src.api.exceptions import (
+    BLOCKED_USER_EXCEPTION,
     CREDENTIAL_EXCEPTIONS,
     NOT_ACTIVE_USER_EXCEPTION,
     REPEAT_EMAIL_EXCEPTION,
-    BLOCKED_USER_EXCEPTION,
 )
 from src.api.v1.users.crud import (
     activate_user,

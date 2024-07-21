@@ -3,7 +3,11 @@ from sqlalchemy import select
 import pytest
 from httpx import AsyncClient
 
-from src.api.exceptions import BLOCKED_USER_EXCEPTION
+from src.api.exceptions import (
+    BLOCKED_USER_EXCEPTION,
+    CREDENTIAL_EXCEPTIONS,
+    NOT_ACTIVE_USER_EXCEPTION,
+)
 from src.api.v1.users.models.token import (
     AccessTokenSchema,
     RevokedAccessTokenSchema,
@@ -86,8 +90,8 @@ async def test_invalid_password_login(async_test_client: AsyncClient):
         f"{USERS_API_V1}/login/", json=login_post_data
     )
 
-    assert response.status_code == 401
-    assert response.json()["detail"] == "Invalid user credentials"
+    assert response.status_code == CREDENTIAL_EXCEPTIONS.status_code
+    assert response.json()["detail"] == CREDENTIAL_EXCEPTIONS.detail
 
 
 @pytest.mark.asyncio
@@ -102,8 +106,8 @@ async def test_in_active_user_login(
         f"{USERS_API_V1}/login/", json=login_post_data
     )
 
-    assert response.status_code == 401
-    assert response.json()["detail"] == "User is not active"
+    assert response.status_code == NOT_ACTIVE_USER_EXCEPTION.status_code
+    assert response.json()["detail"] == NOT_ACTIVE_USER_EXCEPTION.detail
 
 
 @pytest.mark.asyncio

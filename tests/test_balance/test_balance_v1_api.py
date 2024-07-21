@@ -3,6 +3,7 @@ from sqlalchemy import select
 import pytest
 from httpx import AsyncClient
 
+from src.api.exceptions import INSUFFICIENT_BALANCE_ERROR
 from src.api.v1.balance.models.balance import UserBalanceSchema
 from src.db.models import User
 from src.db.session import s
@@ -94,10 +95,8 @@ async def test_wrong_withdraw_balance(
         f"{BALANCE_API_V1}/withdraw/", json=withdraw_post_data
     )
 
-    assert response.status_code == 409
-    assert (
-        response.json()["detail"] == "Insufficient funds on the balance sheet"
-    )
+    assert response.status_code == INSUFFICIENT_BALANCE_ERROR.status_code
+    assert response.json()["detail"] == INSUFFICIENT_BALANCE_ERROR.detail
 
     test_user = await s.user_db.scalar(
         select(User).filter(User.email == TEST_USER_WITH_BALANCE_EMAIL)
