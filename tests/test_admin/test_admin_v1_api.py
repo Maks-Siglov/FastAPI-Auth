@@ -21,6 +21,7 @@ query_params_with_expected_code = [
     ({"first_name": "John"}, 200),
     ({"last_name": "Doe"}, 200),
     ({"is_active": True}, 200),
+    ({"is_blocked": False}, 200),
     ({"order_by": "id", "order_type": "asc"}, 200),
     ({"order_by": "id", "order_type": "desc"}, 200),
     ({"order_by": "balance", "order_type": "asc"}, 200),
