@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from sqlalchemy import func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, validates
 
 from src.db.models.base import Base
 
@@ -26,6 +26,14 @@ class User(Base):
         default=func.now(),
         onupdate=func.now(),
     )
+
+    @validates("role", "balance")
+    def validate_admin_balance(self, key, value):
+        if key == "role" and value == "admin" and self.balance != 0:
+            raise ValueError("Admin users cannot have a balance.")
+        if key == "balance" and self.role == "admin" and value != 0:
+            raise ValueError("Admin users cannot have a balance.")
+        return value
 
     def __str__(self) -> str:
         return self.email

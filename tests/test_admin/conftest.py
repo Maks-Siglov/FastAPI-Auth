@@ -23,7 +23,7 @@ TEST_USER_PASSWORD = "Test_password22"
 
 
 @pytest_asyncio.fixture()
-async def test_admin_user(connect_db) -> User:
+async def test_admin_user(connect_db) -> AsyncGenerator[User, None]:
     current_pool = await get_async_pool(DbSettings.get_async_db_url())
     ses = async_scoped_session(current_pool.maker, scopefunc=current_task)
     s.user_db = ses()
@@ -42,7 +42,7 @@ async def test_admin_user(connect_db) -> User:
     await s.user_db.close()
     await ses.remove()
 
-    return test_admin_user
+    yield test_admin_user
 
 
 @pytest_asyncio.fixture()
