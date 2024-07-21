@@ -15,7 +15,7 @@ NOT_ACTIVE_USER_EXCEPTION = HTTPException(
 
 BLOCKED_USER_EXCEPTION = HTTPException(
     status_code=status.HTTP_403_FORBIDDEN,
-    detail="User is blocked",
+    detail="Account is blocked",
 )
 
 REPEAT_EMAIL_EXCEPTION = HTTPException(

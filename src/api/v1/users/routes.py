@@ -12,6 +12,7 @@ from src.api.exceptions import (
     CREDENTIAL_EXCEPTIONS,
     NOT_ACTIVE_USER_EXCEPTION,
     REPEAT_EMAIL_EXCEPTION,
+    BLOCKED_USER_EXCEPTION,
 )
 from src.api.v1.users.crud import (
     activate_user,
@@ -92,6 +93,9 @@ async def login(
 
     if not user.is_active:
         raise NOT_ACTIVE_USER_EXCEPTION
+
+    if not user.is_blocked:
+        raise BLOCKED_USER_EXCEPTION
 
     access_token, access_payload = create_access_token(user)
     refresh_token, refresh_payload = create_refresh_token(user)
