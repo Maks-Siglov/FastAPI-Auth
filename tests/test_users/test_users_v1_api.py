@@ -13,7 +13,7 @@ from src.api.v1.users.models.token import (
     RevokedAccessTokenSchema,
     TokenSchema,
 )
-from src.api.v1.users.models.user import UserResponseSchema
+from src.api.v1.users.models.user import DeleteUserSchema, UserResponseSchema
 from src.api.v1.users.utils.my_jwt import decode_jwt
 from src.api.v1.users.utils.password import verify_password
 from src.db.models import User
@@ -162,14 +162,13 @@ async def test_deactivate_user(
     assert response.status_code == 200
 
     response_data = response.json()
-    assert UserResponseSchema.model_validate(response_data)
+    assert DeleteUserSchema.model_validate(response_data)
     assert response_data["is_active"] is False
 
-    mock_user = await s.user_db.scalar(
+    deleted_mock_user = await s.user_db.scalar(
         select(User).filter(User.email == MOCK_USER_EMAIL)
     )
-    assert mock_user
-    assert mock_user.is_active is False
+    assert not deleted_mock_user
 
 
 wrong_change_password_data = [

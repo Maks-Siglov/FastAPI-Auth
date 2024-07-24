@@ -9,11 +9,11 @@ from src.db.models.base import Base
 class User(Base):
     __tablename__ = "users"
 
-    email: Mapped[str] = mapped_column(unique=True)
+    email: Mapped[str | None] = mapped_column(unique=True, nullable=True)
     password: Mapped[str] = mapped_column()
 
-    first_name: Mapped[str] = mapped_column(nullable=True)
-    last_name: Mapped[str] = mapped_column(nullable=True)
+    first_name: Mapped[str | None] = mapped_column(nullable=True)
+    last_name: Mapped[str | None] = mapped_column(nullable=True)
 
     role: Mapped[str] = mapped_column(default="user")
     balance: Mapped[int] = mapped_column(default=0)
@@ -36,4 +36,4 @@ class User(Base):
         return value
 
     def __str__(self) -> str:
-        return self.email
+        return str(self.email)
