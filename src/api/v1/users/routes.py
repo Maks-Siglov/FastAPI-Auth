@@ -15,9 +15,11 @@ from src.api.exceptions import (
     REPEAT_EMAIL_EXCEPTION,
 )
 from src.api.v1.users.crud import (
+    activate_user,
     change_user_password,
     create_user,
     deactivate_my_user,
+    delete_my_user,
     edit_user,
     get_user_by_email,
 )
@@ -34,6 +36,7 @@ from src.api.v1.users.models.token import (
 )
 from src.api.v1.users.models.user import (
     ChangePasswordSchema,
+    DeactivateUserSchema,
     DeleteUserSchema,
     UserCreationSchema,
     UserLoginSchema,
@@ -62,6 +65,13 @@ router = APIRouter(prefix="/users", tags=["users"])
     },
 )
 async def signup(payload: UserCreationSchema) -> UserResponseSchema:
+    if (user := await get_user_by_email(email=payload.email)) is not None:
+        if user.is_active:
+            raise REPEAT_EMAIL_EXCEPTION
+
+        await activate_user(user)
+        return UserResponseSchema.model_validate(user)
+
     payload.password = hash_password(payload.password)
     user = await create_user(user_data=payload)
     return UserResponseSchema.model_validate(user)
@@ -138,12 +148,24 @@ async def refresh_access_token(
 @router.post(
     "/deactivate/",
     status_code=status.HTTP_200_OK,
-    responses={status.HTTP_200_OK: {"model": DeleteUserSchema}},
+    responses={status.HTTP_200_OK: {"model": DeactivateUserSchema}},
 )
 async def deactivate_user(
     user: User = Depends(get_current_user),
-) -> DeleteUserSchema:
+) -> DeactivateUserSchema:
     await deactivate_my_user(user)
+    return DeactivateUserSchema.model_validate(user)
+
+
+@router.post(
+    "/delete/",
+    status_code=status.HTTP_200_OK,
+    responses={status.HTTP_200_OK: {"model": DeleteUserSchema}},
+)
+async def delete_user(
+    user: User = Depends(get_current_user),
+) -> DeleteUserSchema:
+    await delete_my_user(user)
     return DeleteUserSchema.model_validate(user)
 
 

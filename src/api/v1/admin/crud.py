@@ -20,6 +20,8 @@ async def filtered_users(params: AdminQueryParams) -> ScalarResult[User]:
         query = query.filter(User.is_active == params.is_active)
     if params.is_blocked is not None:
         query = query.filter(User.is_blocked == params.is_blocked)
+    if params.is_deleted is not None:
+        query = query.filter(User.is_blocked == params.is_deleted)
 
     if params.order_by is not None and params.order_by in [
         "id",

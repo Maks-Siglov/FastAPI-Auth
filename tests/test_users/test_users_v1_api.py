@@ -13,7 +13,11 @@ from src.api.v1.users.models.token import (
     RevokedAccessTokenSchema,
     TokenSchema,
 )
-from src.api.v1.users.models.user import DeleteUserSchema, UserResponseSchema
+from src.api.v1.users.models.user import (
+    DeactivateUserSchema,
+    DeleteUserSchema,
+    UserResponseSchema,
+)
 from src.api.v1.users.utils.my_jwt import decode_jwt
 from src.api.v1.users.utils.password import verify_password
 from src.db.models import User
@@ -162,8 +166,27 @@ async def test_deactivate_user(
     assert response.status_code == 200
 
     response_data = response.json()
-    assert DeleteUserSchema.model_validate(response_data)
+    assert DeactivateUserSchema.model_validate(response_data)
     assert response_data["is_active"] is False
+
+    deactivated_mock_user = await s.user_db.scalar(
+        select(User).filter(User.email == MOCK_USER_EMAIL)
+    )
+    assert deactivated_mock_user
+    assert deactivated_mock_user.is_active is False
+
+
+@pytest.mark.asyncio
+async def test_delete_user(
+    async_test_client: AsyncClient, test_mock_user: User
+):
+    response = await async_test_client.post(f"{USERS_API_V1}/delete/")
+
+    assert response.status_code == 200
+
+    response_data = response.json()
+    assert DeleteUserSchema.model_validate(response_data)
+    assert response_data["is_deleted"] is True
 
     deleted_mock_user = await s.user_db.scalar(
         select(User).filter(User.email == MOCK_USER_EMAIL)

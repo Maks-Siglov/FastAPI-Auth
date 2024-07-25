@@ -13,8 +13,21 @@ async def create_user(user_data: UserCreationSchema) -> User:
     return db_user
 
 
+async def activate_user(user: User) -> None:
+    user.is_active = True
+    await s.user_db.commit()
+    await s.user_db.refresh(user)
+
+
 async def deactivate_my_user(user: User) -> None:
     user.is_active = False
+    await s.user_db.commit()
+    await s.user_db.refresh(user)
+
+
+async def delete_my_user(user: User) -> None:
+    user.is_active = False
+    user.is_deleted = True
     user.email = None
     user.first_name = None
     user.last_name = None

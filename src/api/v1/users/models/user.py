@@ -95,10 +95,21 @@ class BlockUserSchema(BaseModel):
     )
 
 
+class DeactivateUserSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    is_active: bool
+
+
 class DeleteUserSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
-    is_active: bool = Field(
-        default=False, description="Whether the user is active."
-    )
+    email: None
+    first_name: None
+    last_name: None
+    created_at: datetime
+    updated_at: datetime
+    is_deleted: bool
+    is_active: bool
