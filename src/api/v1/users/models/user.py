@@ -15,8 +15,8 @@ class UserLoginSchema(BaseUserSchema):
 
 
 class UserSchema(BaseUserSchema):
-    first_name: str = Field(description="First name of the user.")
-    last_name: str = Field(description="Last name of the user.")
+    first_name: str | None = Field(description="First name of the user.")
+    last_name: str | None = Field(description="Last name of the user.")
 
 
 class UserResponseSchema(UserSchema):
@@ -84,3 +84,32 @@ class ChangePasswordSchema(BaseModel):
         ):
             raise ValueError("New passwords do not match")
         return password_field
+
+
+class BlockUserSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    is_blocked: bool = Field(
+        default=False, description="Whether the user is blocked."
+    )
+
+
+class DeactivateUserSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    is_active: bool
+
+
+class DeleteUserSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    email: None
+    first_name: None
+    last_name: None
+    created_at: datetime
+    updated_at: datetime
+    is_deleted: bool
+    is_active: bool

@@ -3,8 +3,8 @@ from fastapi import APIRouter, Depends
 from starlette import status
 
 from src.api.exceptions import (
-    insufficient_balance_error,
-    negative_balance_error,
+    INSUFFICIENT_BALANCE_ERROR,
+    NEGATIVE_BALANCE_ERROR,
 )
 from src.api.v1.balance.crud import decrease_balance, increase_balance
 from src.api.v1.balance.dependencies import get_user_balance
@@ -22,7 +22,7 @@ router = APIRouter(prefix="/balance", tags=["balance"])
     responses={
         status.HTTP_200_OK: {"model": UserBalanceSchema},
         status.HTTP_409_CONFLICT: {
-            "description": negative_balance_error.detail
+            "description": NEGATIVE_BALANCE_ERROR.detail
         },
     },
 )
@@ -58,7 +58,7 @@ async def deposit_balance(
     responses={
         status.HTTP_200_OK: {"model": AmountSchema},
         status.HTTP_409_CONFLICT: {
-            "description": insufficient_balance_error.detail
+            "description": INSUFFICIENT_BALANCE_ERROR.detail
         },
     },
 )
@@ -67,7 +67,7 @@ async def withdraw_balance(
     user: User = Depends(get_current_user),
 ) -> UserBalanceSchema:
     if user.balance < amount_schema.amount:
-        raise insufficient_balance_error
+        raise INSUFFICIENT_BALANCE_ERROR
 
     await decrease_balance(user, amount_schema.amount)
 

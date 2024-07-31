@@ -3,12 +3,21 @@ from sqlalchemy import select
 import pytest
 from httpx import AsyncClient
 
+from src.api.exceptions import (
+    BLOCKED_USER_EXCEPTION,
+    CREDENTIAL_EXCEPTIONS,
+    NOT_ACTIVE_USER_EXCEPTION,
+)
 from src.api.v1.users.models.token import (
     AccessTokenSchema,
     RevokedAccessTokenSchema,
     TokenSchema,
 )
-from src.api.v1.users.models.user import UserResponseSchema
+from src.api.v1.users.models.user import (
+    DeactivateUserSchema,
+    DeleteUserSchema,
+    UserResponseSchema,
+)
 from src.api.v1.users.utils.my_jwt import decode_jwt
 from src.api.v1.users.utils.password import verify_password
 from src.db.models import User
@@ -85,8 +94,8 @@ async def test_invalid_password_login(async_test_client: AsyncClient):
         f"{USERS_API_V1}/login/", json=login_post_data
     )
 
-    assert response.status_code == 401
-    assert response.json()["detail"] == "Invalid user credentials"
+    assert response.status_code == CREDENTIAL_EXCEPTIONS.status_code
+    assert response.json()["detail"] == CREDENTIAL_EXCEPTIONS.detail
 
 
 @pytest.mark.asyncio
@@ -101,8 +110,23 @@ async def test_in_active_user_login(
         f"{USERS_API_V1}/login/", json=login_post_data
     )
 
-    assert response.status_code == 401
-    assert response.json()["detail"] == "User is not active"
+    assert response.status_code == NOT_ACTIVE_USER_EXCEPTION.status_code
+    assert response.json()["detail"] == NOT_ACTIVE_USER_EXCEPTION.detail
+
+
+@pytest.mark.asyncio
+async def test_blocked_user_login(
+    async_test_client: AsyncClient, test_blocked_user: User
+):
+    login_post_data = {
+        "email": TEST_USER_EMAIL,
+        "password": TEST_USER_PASSWORD,
+    }
+    response = await async_test_client.post(
+        f"{USERS_API_V1}/login/", json=login_post_data
+    )
+    assert response.status_code == BLOCKED_USER_EXCEPTION.status_code
+    assert response.json()["detail"] == BLOCKED_USER_EXCEPTION.detail
 
 
 @pytest.mark.asyncio
@@ -142,14 +166,32 @@ async def test_deactivate_user(
     assert response.status_code == 200
 
     response_data = response.json()
-    assert UserResponseSchema.model_validate(response_data)
+    assert DeactivateUserSchema.model_validate(response_data)
     assert response_data["is_active"] is False
 
-    mock_user = await s.user_db.scalar(
+    deactivated_mock_user = await s.user_db.scalar(
         select(User).filter(User.email == MOCK_USER_EMAIL)
     )
-    assert mock_user
-    assert mock_user.is_active is False
+    assert deactivated_mock_user
+    assert deactivated_mock_user.is_active is False
+
+
+@pytest.mark.asyncio
+async def test_delete_user(
+    async_test_client: AsyncClient, test_mock_user: User
+):
+    response = await async_test_client.post(f"{USERS_API_V1}/delete/")
+
+    assert response.status_code == 200
+
+    response_data = response.json()
+    assert DeleteUserSchema.model_validate(response_data)
+    assert response_data["is_deleted"] is True
+
+    deleted_mock_user = await s.user_db.scalar(
+        select(User).filter(User.email == MOCK_USER_EMAIL)
+    )
+    assert not deleted_mock_user
 
 
 wrong_change_password_data = [

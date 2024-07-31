@@ -7,11 +7,11 @@ from fastapi.security import OAuth2PasswordBearer
 from redis.asyncio import Redis
 
 from src.api.exceptions import (
-    credential_exceptions,
-    invalid_token_credential_exception,
-    invalid_token_exception,
-    invalid_token_type_exception,
-    revoked_token_error,
+    CREDENTIAL_EXCEPTIONS,
+    INVALID_TOKEN_CREDENTIAL_EXCEPTION,
+    INVALID_TOKEN_EXCEPTION,
+    INVALID_TOKEN_TYPE_EXCEPTION,
+    REVOKED_TOKEN_ERROR,
 )
 from src.api.v1.users.crud import get_user_by_email
 from src.api.v1.users.utils.my_jwt import validate_token_type
@@ -32,7 +32,7 @@ async def get_token_payload(
     redis: Redis = Depends(get_redis_client),
 ) -> dict[str, Any]:
     if (payload := await redis.get(token)) is None:
-        raise credential_exceptions
+        raise CREDENTIAL_EXCEPTIONS
     return json.loads(payload)
 
 
@@ -40,13 +40,13 @@ async def get_current_user(
     token_payload: dict[str, Any] = Depends(get_token_payload),
 ) -> User:
     if (email := token_payload.get("sub")) is None:
-        raise invalid_token_exception
+        raise INVALID_TOKEN_EXCEPTION
 
     if token_payload.get("token_revoked") is True:
-        raise revoked_token_error
+        raise REVOKED_TOKEN_ERROR
 
     if (user := await get_user_by_email(email=email)) is None:
-        raise invalid_token_credential_exception
+        raise INVALID_TOKEN_CREDENTIAL_EXCEPTION
 
     return user
 
@@ -55,10 +55,10 @@ async def get_user_from_refresh_token(
     payload: dict[str, Any] = Depends(get_token_payload),
 ) -> User | None:
     if not validate_token_type(payload, JWTSettings.REFRESH_TOKEN_TYPE):
-        raise invalid_token_type_exception
+        raise INVALID_TOKEN_TYPE_EXCEPTION
     if (email := payload.get("sub")) is None:
-        raise invalid_token_exception
+        raise INVALID_TOKEN_EXCEPTION
     if (user := await get_user_by_email(email)) is None:
-        raise invalid_token_credential_exception
+        raise INVALID_TOKEN_CREDENTIAL_EXCEPTION
 
     return user
