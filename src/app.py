@@ -10,6 +10,7 @@ from src.api.routers import api_router_v1
 from src.db.session import close_dbs
 from src.error_handler import http_exception_handler
 from src.logger import logger_config
+from src.middlewares import LoggingMiddleware
 from src.settings import AppSettings
 
 logger_config()
@@ -31,6 +32,8 @@ main_api_router = APIRouter(prefix="/api")
 main_api_router.include_router(api_router_v1)
 
 app.include_router(main_api_router)
+
+app.add_middleware(LoggingMiddleware)
 
 app.add_exception_handler(HTTPException, http_exception_handler)
 

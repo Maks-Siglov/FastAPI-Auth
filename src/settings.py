@@ -57,6 +57,7 @@ class DbSettings:
 @dataclass
 class LogSettings:
     level: str = os.environ["LOGGER_LEVEL"]
+    log_file: str = os.environ["LOGGER_FILE"]
     ROOT_FORMATTER: str = (
         "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
     )
