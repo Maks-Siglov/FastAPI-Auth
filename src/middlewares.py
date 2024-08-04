@@ -17,7 +17,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         response = await call_next(request)
         response_status_code = response.status_code
         process_time = time.time() - start_time
-        process_time_formatted = f"{process_time:.3f} seconds"
+        process_time_formatted = f"{process_time:.4f} seconds"
 
         log.info(
             f"Request: {request_netloc} {request_method} {route}, "
