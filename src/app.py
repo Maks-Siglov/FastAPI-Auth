@@ -20,9 +20,9 @@ log = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(my_app: FastAPI) -> AsyncGenerator[None, None]:
-    log.warning("Start application")
+    log.info("Start application")
     yield
-    log.warning("Application shutdown")
+    log.info("Application shutdown")
     await close_dbs()
 
 
