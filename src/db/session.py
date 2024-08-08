@@ -67,7 +67,7 @@ async def _check_connection(engine: AsyncEngine) -> None:
     try:
         async with engine.connect() as conn:
             await conn.execute(select(1))
-            log.warning("Connection success")
+            log.info("Connection success")
     except Exception as e:
         log.error("During check connection error occurred")
         raise SessionException(e)
@@ -105,7 +105,7 @@ async def handle_session() -> AsyncGenerator[None, None]:
 async def close_dbs() -> None:
     for ses_pool in session_pools.values():
         await ses_pool.engine.dispose()
-    log.warning("Session pools closed")
+    log.info("Session pools closed")
 
 
 class Session:

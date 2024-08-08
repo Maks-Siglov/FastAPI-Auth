@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, Depends
 
 from starlette import status
@@ -11,6 +13,8 @@ from src.api.v1.balance.dependencies import get_user_balance
 from src.api.v1.balance.models.balance import AmountSchema, UserBalanceSchema
 from src.api.v1.users.dependencies import get_current_user
 from src.db.models import User
+
+log = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/balance", tags=["balance"])
 
@@ -47,7 +51,7 @@ async def deposit_balance(
 ) -> UserBalanceSchema:
 
     await increase_balance(user, amount_schema.amount)
-
+    log.info(f"User {user.email} deposit successfully")
     return UserBalanceSchema(user_id=user.id, balance=user.balance)
 
 
@@ -70,5 +74,5 @@ async def withdraw_balance(
         raise INSUFFICIENT_BALANCE_ERROR
 
     await decrease_balance(user, amount_schema.amount)
-
+    log.info(f"User {user.email} withdraw successfully")
     return UserBalanceSchema(user_id=user.id, balance=user.balance)

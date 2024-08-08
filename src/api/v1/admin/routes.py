@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, Depends
 
 from starlette import status
@@ -23,6 +25,8 @@ from src.api.v1.users.models.user import (
     UsersResponseSchema,
 )
 from src.db.models import User
+
+log = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="/admin",
@@ -61,6 +65,7 @@ async def block_user(
         raise ALREADY_BLOCKED_EXCEPTION
 
     await block_my_user(user)
+    log.info(f"User {user.email} blocked successfully")
     return BlockUserSchema.model_validate(user)
 
 
@@ -76,4 +81,5 @@ async def unblock_user(user_id: int) -> BlockUserSchema:
         raise NOT_BLOCKED_EXCEPTION
 
     await unblock_my_user(user)
+    log.info(f"User {user.email} unblocked successfully")
     return BlockUserSchema.model_validate(user)

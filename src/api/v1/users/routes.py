@@ -1,5 +1,6 @@
 import asyncio
 import json
+import logging
 from datetime import datetime
 from typing import Any
 
@@ -51,6 +52,8 @@ from src.api.v1.users.utils.my_jwt import (
 from src.api.v1.users.utils.password import hash_password, verify_password
 from src.db.models import User
 
+log = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/users", tags=["users"])
 
 
@@ -74,6 +77,7 @@ async def signup(payload: UserCreationSchema) -> UserResponseSchema:
 
     payload.password = hash_password(payload.password)
     user = await create_user(user_data=payload)
+    log.info(f"User {user.email} created successfully")
     return UserResponseSchema.model_validate(user)
 
 
@@ -117,6 +121,7 @@ async def login(
             ex=int(refresh_payload["exp"]) - now,
         ),
     )
+    log.info(f"User {user.email} login successfully")
 
     return TokenSchema(access_token=access_token, refresh_token=refresh_token)
 
@@ -130,6 +135,8 @@ async def logout(
     payload: dict[str, Any] = Depends(get_token_payload),
 ) -> RevokedAccessTokenSchema:
     revoked_token = revoke_jwt(payload)
+    log.info("Token revoked successfully")
+
     return RevokedAccessTokenSchema(access_token=revoked_token)
 
 
@@ -154,6 +161,8 @@ async def deactivate_user(
     user: User = Depends(get_current_user),
 ) -> DeactivateUserSchema:
     await deactivate_my_user(user)
+    log.info(f"User {user.email} deactivated successfully")
+
     return DeactivateUserSchema.model_validate(user)
 
 
@@ -166,6 +175,8 @@ async def delete_user(
     user: User = Depends(get_current_user),
 ) -> DeleteUserSchema:
     await delete_my_user(user)
+    log.info(f"User {user.email} deleted successfully")
+
     return DeleteUserSchema.model_validate(user)
 
 
